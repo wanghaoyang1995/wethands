@@ -1,4 +1,4 @@
-# cmake_minimum_required(VERSION 3.10.2)
+cmake_minimum_required(VERSION 3.10.2)
 
 project(wethands)
 
@@ -24,6 +24,6 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
-include_directories(${PROJECT_SOURCE_DIR}/src)
+include_directories(${PROJECT_SOURCE_DIR})
 
-add_subdirectory(src)
+add_subdirectory(src wethands)
