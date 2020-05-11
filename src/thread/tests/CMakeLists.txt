@@ -1,0 +1,2 @@
+add_executable(CurrentThread_test CurrentThread_test.cc)
+target_link_libraries(CurrentThread_test wethands)

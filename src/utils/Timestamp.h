@@ -32,8 +32,9 @@ class Timestamp : public wethands::Copyable,
                                kMicrosecondsPerSecond);
   }
 
-  // 返回格式化的字符串. 形如yyyy-MM-dd HH:mm:ss.
-  std::string ToString() const;
+  // 返回格式化的字符串(本地时间). 形如yyyy-MM-dd HH:mm:ss.
+  // showMicroseconds 指明是否需要精确到微秒.
+  std::string ToString(bool showMicroseconds) const;
 
   // 返回当前时刻的时间戳.
   static Timestamp Now();
