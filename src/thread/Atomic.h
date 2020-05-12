@@ -29,11 +29,11 @@ class AtomicInterger : public Uncopyable {
   }
 
   T GetAndAdd(T x) {
-    return __atomic_fetch_add(&value, x, __ATOMIC_SEQ_CST);
+    return __atomic_fetch_add(&value_, x, __ATOMIC_SEQ_CST);
   }
 
   T AddAndGet(T x) {
-    return __atomic_add_fetch(&value, x, __ATOMIC_SEQ_CST);
+    return __atomic_add_fetch(&value_, x, __ATOMIC_SEQ_CST);
   }
 
   T IncrementAndGet() {

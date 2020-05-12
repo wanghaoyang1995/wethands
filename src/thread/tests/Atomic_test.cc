@@ -22,5 +22,6 @@ int main() {
   t1.join();
   t2.join();
   assert(g_atomic_i.Get() == 0);
+  printf("g_atomic_i = %d, g_i = %d\n", g_atomic_i.Get(), g_i);
   return 0;
 }
