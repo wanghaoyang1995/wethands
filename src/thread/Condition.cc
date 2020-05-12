@@ -25,7 +25,11 @@ bool Condition::WaitForSeconds(double seconds) {
   ts.tv_nsec =
     static_cast<decltype(ts.tv_nsec)>(nanoseconds % kNanosecondsPerSecond);
 
+  // 手动修改持有者.
+  lock_.UnassignHolder();
   // pthread_cond_timedwait 第三个参数要求的是绝对时间.
-  return ETIMEDOUT ==
-         ::pthread_cond_timedwait(&cond_, lock_.GetPthreadMutex(), &ts);
+  int ret = ::pthread_cond_timedwait(&cond_, lock_.GetPthreadMutex(), &ts);
+  lock_.AssignHolder();
+
+  return ret == ETIMEDOUT;
 }

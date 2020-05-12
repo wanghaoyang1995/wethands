@@ -30,7 +30,10 @@ class Condition : public Uncopyable {
   // 等待直到条件出现.
   void Wait() {
     assert(lock_.LockedByThisThread());
+    // 由于pthread_cond_wait会在内部解锁, 所以需要手动修改持有者
+    lock_.UnassignHolder();
     MCHECK(pthread_cond_wait(&cond_, lock_.GetPthreadMutex()));
+    lock_.AssignHolder();
   }
 
   // 等待microseconds微秒, 如果到期时条件还没有出现就返回true.
