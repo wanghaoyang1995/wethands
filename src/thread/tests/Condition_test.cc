@@ -33,6 +33,10 @@ int main() {
   std::thread t2(test2);
   t1.join();
   t2.join();
+
+  MutexLockGuard guard(lock);
+  bool timeout = cond.WaitForSeconds(2.5);
+  printf("%d\n", timeout);
   printf("Done.\n");
   return 0;
 }

@@ -9,3 +9,6 @@ target_link_libraries(Mutex_test wethands)
 
 add_executable(Condition_test Condition_test.cc)
 target_link_libraries(Condition_test wethands)
+
+add_executable(CountDownLatch_test CountDownLatch_test.cc)
+target_link_libraries(CountDownLatch_test wethands)

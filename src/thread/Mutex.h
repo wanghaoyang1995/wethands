@@ -12,7 +12,7 @@
 #include "src/utils/Uncopyable.h"
 
 // 检查返回值是否为0.
-#define MCHECK(ret) { int errnum = ret; assert(errnum == 0); }
+#define MCHECK(ret) { decltype(ret) errnum = ret; assert(errnum == 0); }
 
 namespace wethands {
 
