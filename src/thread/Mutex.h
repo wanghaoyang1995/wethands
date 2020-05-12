@@ -6,17 +6,17 @@
 #ifndef SRC_THREAD_MUTEX_H_
 #define SRC_THREAD_MUTEX_H_
 
-
 #include <pthread.h>
 #include <cassert>
 #include "src/thread/CurrentThread.h"
 #include "src/utils/Uncopyable.h"
-// 断言函数返回值为0. 仅限本文件内使用.
+
+// 检查返回值是否为0.
 #define MCHECK(ret) { int errnum = ret; assert(errnum == 0); }
 
 namespace wethands {
 
-// 对linux系统互斥锁的封装. 不可拷贝.
+// UNIX互斥量的封装类. 不可拷贝.
 class MutexLock : public Uncopyable {
  public:
   MutexLock() : holder_(0) {
