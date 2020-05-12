@@ -4,7 +4,12 @@
 // Description:
 
 #include "src/logger/Logger.h"
+
+#include <errno.h>
+#include <string.h>
 #include <cstdio>
+#include <string>
+
 #include "src/thread/CurrentThread.h"
 #include "src/utils/Timestamp.h"
 
@@ -35,19 +40,32 @@ const char* logLevelName[Logger::LogLevel::NUM_OF_LOGLEVEL] = {
 
 using wethands::Logger;
 
-Logger::Logger(const char* file, int line, LogLevel level, const char* func) {
-  stream_ << Timestamp::Now().ToString(true);
-  stream_ << CurrentThread::Tid();
-  stream_ << logLevelName[0];
-
+Logger::Logger(const char* file, int line, LogLevel level, int savedErrno)
+    : stream_(), level_(level) {
+  stream_ << "[" << Timestamp::Now().ToString(true) << " ";
+  stream_ << CurrentThread::Tid() << " ";
+  stream_ << logLevelName[level] << " ";
+  stream_ << file << ":" << line << "]\n";
+  if (savedErrno != 0) {
+    // 用来存储errno对应的错误描述.
+    char errbuf[512];
+    const char* errstr = ::strerror_r(savedErrno, errbuf, sizeof(errbuf));
+    stream_ << "errno " << savedErrno << ": " << errstr << "\n";
+  }
 }
 
 Logger::~Logger() {
-
+  stream_ << "\n";
+  std::string msg = stream_.str();
+  gOutput(msg.c_str(), msg.size());
+  if (level_ == LogLevel::FATAL) {
+    gFlush();
+    ::abort();
+  }
 }
 
-Logger::LogLevel getLogLevel() { return wethands::gLogLevel; }
+Logger::LogLevel Logger::getLogLevel() { return wethands::gLogLevel; }
 void Logger::setLogLevel(LogLevel level) { wethands::gLogLevel = level; }
 
-void Logger::setOutputFunc(OutputFunc output) { gOutput = output; }
-void Logger::setFlushFunc(FlushFunc flush) { gFlush = flush; }
+void Logger::setOutputFunc(OutputFunc output) { wethands::gOutput = output; }
+void Logger::setFlushFunc(FlushFunc flush) { wethands::gFlush = flush; }

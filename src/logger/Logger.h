@@ -24,7 +24,9 @@ class Logger {
     NUM_OF_LOGLEVEL
   };
 
-  Logger(const char* file, int line, LogLevel level, const char* func);
+  // 构造日志头, 及错误信息(如果有的话)
+  Logger(const char* file, int line, LogLevel level, int savedErrno = 0);
+  // 在析构时传递给后端作实际的输出工作
   ~Logger();
 
   static LogLevel getLogLevel();
@@ -35,38 +37,44 @@ class Logger {
 
  private:
   std::ostringstream stream_;  // TODO(GGGGITFKBJG): 使用自定义输出流以改善效率.
+  LogLevel level_;  // 当前输出所用的类型
 };
 
-// 一个全局变量, 记录当前日志级别.
-extern Logger::LogLevel gLogLevel;
+}  // namespace wethands
 
 #define LOG_TRACE \
-  if (gLogLevel <= Logger::LogLevel::TRACE) \
-    Logger(__FILE__, __LINE__, Logger::LogLevel::TRACE).stream()
+  if (wethands::Logger::getLogLevel() <= wethands::Logger::TRACE) \
+    wethands::Logger(__FILE__, __LINE__, wethands::Logger::TRACE).stream()
 
 #ifdef NDEBUG
+// 如果是release编译模式, 就隐藏LOG_DEBUG的输出.
 #define LOG_DEBUG \
   if (false) \
-    Logger(__FILE__, __LINE__, Logger::LogLevel::DEBUG).stream()
+    wethands::Logger(__FILE__, __LINE__, wethands::Logger::DEBUG).stream()
 #else
 #define LOG_DEBUG \
-  if (gLogLevel <= Logger::LogLevel::DEBUG) \
-    Logger(__FILE__, __LINE__, Logger::LogLevel::DEBUG).stream()
+  if (wethands::Logger::getLogLevel() <= wethands::Logger::DEBUG) \
+    wethands::Logger(__FILE__, __LINE__, wethands::Logger::DEBUG).stream()
 #endif
 
 #define LOG_INFO \
-  if (gLogLevel <= Logger::LogLevel::INFO) \
-    Logger(__FILE__, __LINE__, Logger::LogLevel::INFO).stream()
+  if (wethands::Logger::getLogLevel() <= wethands::Logger::INFO) \
+    wethands::Logger(__FILE__, __LINE__, wethands::Logger::INFO).stream()
 
 #define LOG_WARN \
-  Logger(__FILE__, __LINE__, Logger::LogLevel::WARN).stream()
+  wethands::Logger(__FILE__, __LINE__, wethands::Logger::WARN).stream()
 
 #define LOG_ERROR \
-  Logger(__FILE__, __LINE__, Logger::LogLevel::ERROR).stream()
+  wethands::Logger(__FILE__, __LINE__, wethands::Logger::ERROR).stream()
 
 #define LOG_FATAL \
-  Logger(__FILE__, __LINE__, Logger::LogLevel::FATAL).stream()
+  wethands::Logger(__FILE__, __LINE__, wethands::Logger::FATAL).stream()
 
-}  // namespace wethands
+// 系统调用错误. 输出错误码及描述.
+#define LOG_SYSERROR \
+  wethands::Logger(__FILE__, __LINE__, wethands::Logger::ERROR, errno).stream()
+// 严重系统调用错误. 输出错误码及描述并终止进程.
+#define LOG_SYSFATAL \
+  wethands::Logger(__FILE__, __LINE__, wethands::Logger::FATAL, errno).stream()
 
 #endif  // SRC_LOGGER_LOGGER_H_
