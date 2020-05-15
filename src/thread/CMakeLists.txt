@@ -2,6 +2,7 @@ set(thread_SRCS
   CurrentThread.cc
   Condition.cc
   CountDownLatch.cc
+  Thread.cc
 )
 
 add_library(wethands_thread OBJECT ${thread_SRCS})

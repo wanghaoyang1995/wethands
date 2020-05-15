@@ -3,15 +3,10 @@
 // Date: 2020-05-12 12:46:37
 // Description:
 
-// Copyright (c) 2020 GGGGITFKBJG
-//
-// Date: 2020-05-12 12:46:37
-// Description:
-
 #ifndef SRC_THREAD_ATOMIC_H_
 #define SRC_THREAD_ATOMIC_H_
 
-#include <stdint.h>
+#include <cstdint>
 #include "src/utils/Uncopyable.h"
 
 namespace wethands {

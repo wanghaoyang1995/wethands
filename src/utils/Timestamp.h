@@ -7,7 +7,7 @@
 #define SRC_UTILS_TIMESTAMP_H_
 
 #include <time.h>
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 
 #include "src/utils/Copyable.h"

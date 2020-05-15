@@ -8,15 +8,29 @@
 #include <sys/syscall.h>
 #include <time.h>
 #include <type_traits>
-#include "src/utils/Timestamp.h"
-
-namespace wethands {
-namespace CurrentThread {
 
 // 确保 pid_t 同 int 类型
 static_assert(std::is_same<int, pid_t>::value, "pid_t should be int");
 
+namespace wethands {
+namespace CurrentThread {
+namespace details {
+
+// 为主线程设置初始信息.
+class MainThreadInitializer {
+ public:
+  MainThreadInitializer() {
+    CurrentThread::Tid();
+    CurrentThread::t_name = "MainThread";
+  }
+};
+// 一个全局变量, 主线程调用它的构造函数时完成初始信息设置.
+MainThreadInitializer gInitializer;
+
+}  // namespace details
+
 __thread int t_tid = 0;  // 0代表没有缓存.
+__thread const char* t_name = "unknown";
 
 }  // namespace CurrentThread
 }  // namespace wethands
@@ -28,14 +42,17 @@ int wethands::CurrentThread::Tid() {
   return t_tid;
 }
 
+const char* wethands::CurrentThread::Name() {
+  return t_name;
+}
+
 bool wethands::CurrentThread::IsMainThread() {
   return Tid() == ::getpid();
 }
 
-void wethands::CurrentThread::sleepUsec(int64_t usec) {
+void wethands::CurrentThread::SleepUsec(int64_t usec) {
   struct timespec ts;
-  ts.tv_sec = static_cast<time_t>(usec / Timestamp::kMicrosecondsPerSecond);
-  ts.tv_nsec = static_cast<long>(usec % Timestamp::kMicrosecondsPerSecond *
-                                        Timestamp::kNanosecondsPerMicrosecond);
+  ts.tv_sec = static_cast<decltype(ts.tv_sec)>(usec / 1000000);
+  ts.tv_nsec = static_cast<decltype(ts.tv_nsec)>(usec % 1000000 * 1000);
   ::nanosleep(&ts, nullptr);
 }

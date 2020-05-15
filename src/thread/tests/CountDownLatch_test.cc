@@ -1,3 +1,8 @@
+// Copyright (c) 2020 GGGGITFKBJG
+//
+// Date: 2020-05-12 23:23:12
+// Description:
+
 #include "src/thread/CountDownLatch.h"
 #include <cassert>
 #include <thread>
@@ -9,17 +14,17 @@ using namespace wethands;
 CountDownLatch latch(3);
 
 void func1() {
-  CurrentThread::sleepUsec(1000000);
+  CurrentThread::SleepUsec(1000000);
   latch.CountDown();
 }
 
 void func2() {
-  CurrentThread::sleepUsec(2000000);
+  CurrentThread::SleepUsec(2000000);
   latch.CountDown();
 }
 
 void func3() {
-  CurrentThread::sleepUsec(3000000);
+  CurrentThread::SleepUsec(3000000);
   latch.CountDown();
 }
 

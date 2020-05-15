@@ -7,7 +7,7 @@
 #define SRC_THREAD_CONDITION_H_
 
 #include <pthread.h>
-#include <stdint.h>
+#include <cstdint>
 #include "src/thread/Mutex.h"
 #include "src/utils/Uncopyable.h"
 
