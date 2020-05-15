@@ -16,7 +16,7 @@ namespace wethands {
 // pthread线程的封装类. 不可拷贝.
 class Thread : public Uncopyable {
  public:
-  typedef std::function<void()> ThreadFunc;
+  typedef std::function<void ()> ThreadFunc;
 
   explicit Thread(ThreadFunc func, const std::string& name);
   // 如果正在运行且没有join, 就将线程分离.

@@ -15,3 +15,6 @@ target_link_libraries(CountDownLatch_test wethands)
 
 add_executable(Thread_test Thread_test.cc)
 target_link_libraries(Thread_test wethands)
+
+add_executable(ThreadPool_test ThreadPool_test.cc)
+target_link_libraries(ThreadPool_test wethands)

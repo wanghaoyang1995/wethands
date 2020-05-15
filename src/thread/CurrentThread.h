@@ -3,11 +3,6 @@
 // Date: 2020-05-11 22:59:51
 // Description:
 
-// Copyright (c) 2020 GGGGITFKBJG
-//
-// Date: 2020-05-11 22:59:51
-// Description:
-
 #ifndef SRC_THREAD_CURRENTTHREAD_H_
 
 #include <cstdint>

@@ -39,8 +39,8 @@ class Timestamp : public wethands::Copyable,
   // 返回当前时刻的时间戳.
   static Timestamp Now();
 
-  static const int kMicrosecondsPerSecond = 1000 * 1000;
-  static const int kNanosecondsPerMicrosecond = 1000;
+  static constexpr int kMicrosecondsPerSecond = 1000 * 1000;
+  static constexpr int kNanosecondsPerMicrosecond = 1000;
 
  private:
   // 自1970年1月1日00:00时刻至当前时刻的微秒数
