@@ -39,7 +39,8 @@ void ThreadPool::Stop() {
     MutexLockGuard guard(lock_);
     running_ = false;
   }
-  notEmpty_.NotifyAll();
+  notEmpty_.NotifyAll();  // 唤醒阻塞的消费者线程.
+  notFull_.NotifyAll();  // 唤醒阻塞的生产者线程.
   for (auto& thread : threads_) {
     thread->Join();
   }
@@ -68,9 +69,10 @@ void ThreadPool::Run(Task task) {
     task();
   } else {
     MutexLockGuard guard(lock_);
-    while (QueueIsFull()) {
+    while (QueueIsFull() && running_) {
       notFull_.Wait();
     }
+    if (!running_) return;
     queue_.push_back(std::move(task));
     notEmpty_.Notify();
   }
@@ -81,7 +83,7 @@ ThreadPool::Task ThreadPool::Take() {
   while (queue_.empty() && running_) {
     notEmpty_.Wait();
   }
-  if (queue_.empty()) return Task();  // queue_为空说明消费者被Stop唤醒.
+  if (!running_) return Task();  // 消费者被Stop唤醒.
 
   Task task = queue_.front();
   queue_.pop_front();
