@@ -45,12 +45,12 @@ Logger::Logger(const char* file, int line, LogLevel level, int savedErrno)
   stream_ << "[" << Timestamp::Now().ToString(true) << " ";
   stream_ << CurrentThread::Tid() << " ";
   stream_ << logLevelName[level] << " ";
-  stream_ << file << ":" << line << "]\n";
+  stream_ << file << ":" << line << "] ";
   if (savedErrno != 0) {
     // 用来存储errno对应的错误描述.
     char errbuf[512];
     const char* errstr = ::strerror_r(savedErrno, errbuf, sizeof(errbuf));
-    stream_ << "errno " << savedErrno << ": " << errstr << "\n";
+    stream_ << "(errno " << savedErrno << ": " << errstr << ") ";
   }
 }
 

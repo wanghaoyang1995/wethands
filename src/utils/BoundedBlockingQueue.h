@@ -20,7 +20,7 @@ namespace wethands {
 template<typename T>
 class BoundedBlockingQueue : public Uncopyable {
  public:
-  BoundedBlockingQueue(int maxSize)
+  explicit BoundedBlockingQueue(int maxSize)
       : lock_(),
         notEmpty_(lock_),
         notFull_(lock_),
