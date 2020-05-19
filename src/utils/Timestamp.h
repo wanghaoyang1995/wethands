@@ -55,6 +55,18 @@ inline bool operator==(const Timestamp& lhs, const Timestamp& rhs) {
   return lhs.MicrosecondsSinceEpoch() == rhs.MicrosecondsSinceEpoch();
 }
 
+// 返回high与low之间的秒数差.
+inline double SecondsDifference(Timestamp high, Timestamp low) {
+  int64_t diff = high.MicrosecondsSinceEpoch() - low.MicrosecondsSinceEpoch();
+  return static_cast<double>(diff) / Timestamp::kMicrosecondsPerSecond;
+}
+
+inline Timestamp AddSeconds(Timestamp timestamp, double seconds) {
+  int64_t delta = static_cast<int64_t>(seconds *
+                                       Timestamp::kMicrosecondsPerSecond);
+  return Timestamp(timestamp.MicrosecondsSinceEpoch() + delta);
+}
+
 }  // namespace wethands
 
 #endif  // SRC_UTILS_TIMESTAMP_H_

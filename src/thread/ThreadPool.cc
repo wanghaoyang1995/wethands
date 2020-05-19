@@ -38,9 +38,11 @@ void ThreadPool::Stop() {
   {
     MutexLockGuard guard(lock_);
     running_ = false;
+    // https://1feng.github.io/2016/07/20/signal-with-mutex-locked-or-not/
+    notEmpty_.NotifyAll();  // 唤醒阻塞的消费者线程.
+    notFull_.NotifyAll();  // 唤醒阻塞的生产者线程.
   }
-  notEmpty_.NotifyAll();  // 唤醒阻塞的消费者线程.
-  notFull_.NotifyAll();  // 唤醒阻塞的生产者线程.
+
   for (auto& thread : threads_) {
     thread->Join();
   }

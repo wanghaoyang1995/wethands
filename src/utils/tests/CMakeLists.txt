@@ -6,3 +6,6 @@ target_link_libraries(operators_test wethands)
 
 add_executable(Timestamp_test Timestamp_test.cc)
 target_link_libraries(Timestamp_test wethands)
+
+add_executable(BlockingQueue_test BlockingQueue_test.cc)
+target_link_libraries(BlockingQueue_test wethands)
