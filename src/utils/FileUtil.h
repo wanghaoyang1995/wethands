@@ -30,7 +30,7 @@ class AppendFile : public Uncopyable {
  private:
   FILE* fp_;
   off_t writtenBytes_;  // 已写字节数.
-  char buffer_[64*1024];  // 自定义缓冲区大小. 给fwrite_unlocked使用.
+  char buffer_[64*1024];  // 64KB自定义缓冲区大小. 给fwrite_unlocked使用.
 };
 
 }  // namespace FileUtil

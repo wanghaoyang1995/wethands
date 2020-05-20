@@ -20,31 +20,35 @@ class Timestamp : public wethands::Copyable,
                   public wethands::LessThanComparable<Timestamp>,
                   public wethands::EqualityComparable<Timestamp> {
  public:
-  Timestamp() : microseconds_since_epoch_(0) {}
-  explicit Timestamp(int64_t microseconds_since_epoch)
-    : microseconds_since_epoch_(microseconds_since_epoch) {}
+  Timestamp() : microsecondsSinceEpoch_(0) {}
+  explicit Timestamp(int64_t microsecondsSinceEpoch)
+    : microsecondsSinceEpoch_(microsecondsSinceEpoch) {}
 
-  int64_t MicrosecondsSinceEpoch() const { return microseconds_since_epoch_; }
+  int64_t MicrosecondsSinceEpoch() const { return microsecondsSinceEpoch_; }
 
   // 获取时间戳对应的日历时间
   time_t SecondsSinceEpoch() const {
-    return static_cast<time_t>(microseconds_since_epoch_ /
+    return static_cast<time_t>(microsecondsSinceEpoch_ /
                                kMicrosecondsPerSecond);
   }
 
-  // 返回格式化的字符串(本地时间). 形如yyyy-MM-dd HH:mm:ss.
+  // 将时间戳按天向下圆整.
+  // 返回本地时间当天 00:00时刻的时间戳.
+  Timestamp RoundByDay() const;
+
+  // 返回格式化的字符串(本地时间). 形如 yyyyMMdd-HHmmss.
   // showMicroseconds 指明是否需要精确到微秒.
-  std::string ToString(bool showMicroseconds) const;
+  std::string ToFormattedString(bool showMicroseconds = false) const;
 
   // 返回当前时刻的时间戳.
   static Timestamp Now();
 
-  static constexpr int kMicrosecondsPerSecond = 1000 * 1000;
+  static constexpr int kMicrosecondsPerSecond = 1000000;
   static constexpr int kNanosecondsPerMicrosecond = 1000;
 
  private:
   // 自1970年1月1日00:00时刻至当前时刻的微秒数
-  int64_t microseconds_since_epoch_;
+  int64_t microsecondsSinceEpoch_;
 };
 
 inline bool operator<(const Timestamp& lhs, const Timestamp& rhs) {

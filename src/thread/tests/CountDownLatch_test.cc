@@ -35,9 +35,11 @@ int main() {
   t1.detach();
   t2.detach();
   t3.detach();
-  printf("[%s] Waiting threads.\n", Timestamp::Now().ToString(true).c_str());
+  printf("[%s] Waiting threads.\n",
+         Timestamp::Now().ToFormattedString(true).c_str());
   latch.Wait();
   assert(latch.GetCount() == 0);
-  printf("[%s] All threads ready.\n", Timestamp::Now().ToString(true).c_str());
+  printf("[%s] All threads ready.\n",
+         Timestamp::Now().ToFormattedString(true).c_str());
   return 0;
 }
