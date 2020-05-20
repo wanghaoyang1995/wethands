@@ -15,7 +15,7 @@
 
 namespace wethands {
 
-void DefaultOutput(const char* msg, int len) {
+void DefaultOutput(const char* msg, size_t len) {
   fwrite(msg, sizeof(char), len, stdout);
 }
 

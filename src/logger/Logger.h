@@ -12,7 +12,7 @@ namespace wethands {
 
 class Logger {
  public:
-  typedef void (*OutputFunc)(const char*, int);
+  typedef void (*OutputFunc)(const char*, size_t);
   typedef void (*FlushFunc)();
   enum LogLevel {
     TRACE,           // 细粒度的记录. Release编译时也会输出.

@@ -15,6 +15,7 @@ int main() {
     const char str[] = "0123456789 abcdefghijklmnopqrstuvwxyz\n";
     file.Append(str, sizeof(str));
     assert(file.WrittenBytes() == sizeof(str));
+    printf("written bytes = %d\n", file.WrittenBytes());
   }
   printf("Done\n");
   return 0;

@@ -25,16 +25,20 @@ class LogFile : public Uncopyable {
           bool threadSafe = true,
           int flushInterval = 3,
           int checkEveryNAppend = 1024);
-  ~LogFile();
+  ~LogFile() = default;
 
   void Append(const char* line, size_t len);
-  void Flush();
   // 创建新一轮的文件并修改相关信息.
+  // 如果在1秒内多次调用RollFile(), 只有第一次会创建新文件.
   void RollFile();
+  void Flush();
 
  private:
+  void AppendUnlocked(const char* line, size_t len);
+  void RollFileUnlocked();
+
   // 传入 Timestamp, 返回格式化的文件名.
-  std::string FormattedName(Timestamp time);
+  std::string FormattedName(Timestamp time) const;
 
   // 必须是文件名而不是路径名.
   const std::string basename_;
