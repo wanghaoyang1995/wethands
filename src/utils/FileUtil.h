@@ -13,22 +13,24 @@
 namespace wethands {
 namespace FileUtil {
 
-// 文件的封装类, 追加方式写. 非线程安全的.
+// 只写文件的封装类. 以追加方式写. 非线程安全的.
 class AppendFile : public Uncopyable {
  public:
+  // 参数filename是相对路径或绝对路径.
   explicit AppendFile(const std::string& filename);
   explicit AppendFile(const char* filename);
   ~AppendFile();
 
-  // 追加写. 内部使用::fwrite_unlocked.
+  // 追加写len字节line中的数据. 内部使用::fwrite_unlocked.
+  // 写够len字节返回, 或者出错返回.
   void Append(const char* line, size_t len);
   void Flush();
   off_t WrittenBytes() const { return writtenBytes_; }
 
  private:
   FILE* fp_;
-  off_t writtenBytes_;
-  char buffer_[64*1024];  // 64KB缓冲区. 为了减少系统调用次数.
+  off_t writtenBytes_;  // 已写字节数.
+  char buffer_[64*1024];  // 自定义缓冲区大小. 给fwrite_unlocked使用.
 };
 
 }  // namespace FileUtil

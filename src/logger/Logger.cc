@@ -42,6 +42,7 @@ using wethands::Logger;
 
 Logger::Logger(const char* file, int line, LogLevel level, int savedErrno)
     : stream_(), level_(level) {
+  // TODO(GGGGITFKBJG): 将时间缓存, 减少Now()及ToString()的调用次数.
   stream_ << "[" << Timestamp::Now().ToString(true) << " ";
   stream_ << CurrentThread::Tid() << " ";
   stream_ << logLevelName[level] << " ";
