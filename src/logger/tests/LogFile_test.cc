@@ -4,7 +4,7 @@
 
 using namespace wethands;
 
-LogFile file("logfile", 2*1024);  // 2KB
+LogFile file("logfile", 2*1024);  // 2KiB
 
 void output(const char* line, size_t len) {
   file.Append(line, len);

@@ -5,8 +5,8 @@
 
 #include "src/utils/FileUtil.h"
 #include <errno.h>
-#include <string.h>
 #include <cassert>
+#include <cstring>
 #include <cstdio>
 
 using wethands::FileUtil::AppendFile;

@@ -65,7 +65,8 @@ void LogFile::AppendUnlocked(const char* line, size_t len) {
       Timestamp now = Timestamp::Now();
       if (currentPeriod_ < now.RoundByDay()) {  // 如果跨越了周期, 就RollFile().
         RollFileUnlocked();
-      } else if (SecondsDifference(now, lastFlush_) >= flushInterval_) {
+      } else if (SecondsDifference(now, lastFlush_) >=
+                 static_cast<double>(flushInterval_)) {
         lastFlush_ = now;
         file_->Flush();
       }

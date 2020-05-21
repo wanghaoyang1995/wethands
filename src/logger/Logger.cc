@@ -6,7 +6,7 @@
 #include "src/logger/Logger.h"
 
 #include <errno.h>
-#include <string.h>
+#include <cstring>
 #include <cstdio>
 #include <string>
 

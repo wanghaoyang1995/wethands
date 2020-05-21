@@ -1,6 +1,7 @@
 set(logger_SRCS
-  Logger.cc
+  AsyncLogging.cc
   LogFile.cc
+  Logger.cc
 )
 
 add_library(wethands_logger OBJECT ${logger_SRCS})
