@@ -62,6 +62,6 @@ class LogFile : public Uncopyable {
   static const int kSecondsPerPeriod_ = 60 * 60 * 24;  // 每周期(24h)的秒数.
 };
 
-}
+}  // namespace wethands
 
 #endif  // SRC_LOGGER_LOGFILE_H_

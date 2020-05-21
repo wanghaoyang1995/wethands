@@ -58,8 +58,7 @@ void LogFile::AppendUnlocked(const char* line, size_t len) {
   file_->Append(line, len);
   if (file_->WrittenBytes() >= rollsize_) {
     RollFileUnlocked();
-  }
-  else {
+  } else {
     ++appendCount_;
     if (appendCount_ >= checkEveryNAppend_) {  // Append达到次数就会触发检查.
       appendCount_ = 0;

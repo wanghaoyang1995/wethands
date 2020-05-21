@@ -9,7 +9,7 @@
 #include <sstream>
 
 namespace wethands {
-
+// 日志系统前端的记录器.
 class Logger {
  public:
   typedef void (*OutputFunc)(const char*, size_t);
