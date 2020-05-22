@@ -17,7 +17,7 @@ AppendFile::AppendFile(const std::string& filename)
 AppendFile::AppendFile(const char* filename)
     : fp_(::fopen(filename, "a")),
       writtenBytes_(0) {
-  assert(fp_);
+  assert(fp_ != nullptr);
   ::setbuffer(fp_, buffer_, sizeof(buffer_));
 }
 

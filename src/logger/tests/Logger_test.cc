@@ -4,7 +4,7 @@ using namespace wethands;
 
 int main() {
   /*
-  Logger::setLogLevel(Logger::TRACE);
+  Logger::SetLogLevel(Logger::TRACE);
   LOG_TRACE << "TRACE";
   LOG_DEBUG << "DEBUG";
   LOG_INFO << "INFO";
@@ -12,7 +12,7 @@ int main() {
   //LOG_FATAL << "FATAL";
   */
 
-  Logger::setLogLevel(Logger::DEBUG);
+  Logger::SetLogLevel(Logger::DEBUG);
   LOG_TRACE << "TRACE";
   LOG_DEBUG << "DEBUG";
   LOG_INFO << "INFO";

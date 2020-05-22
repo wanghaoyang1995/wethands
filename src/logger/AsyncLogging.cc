@@ -12,7 +12,7 @@
 using wethands::AsyncLogging;
 
 AsyncLogging::AsyncLogging(const std::string& basename,
-                           off_t rollsize,
+                           size_t rollsize,
                            int flushInterval)
     : basename_(basename),
       rollsize_(rollsize),
@@ -33,9 +33,9 @@ AsyncLogging::~AsyncLogging() {
 }
 
 void AsyncLogging::Append(const char* line, size_t len) {
-  assert(running_);
   // 由前台线程调用, 尽量不要做耗时操作.
   // 除非迫不得已, 内存分配操作尽量由后台线程来做.
+  assert(running_);
   MutexLockGuard guard(lock_);
   if (currentBuffer_->AvailableBytes() > len) {  // 空间足够.
     currentBuffer_->Append(line, len);
@@ -53,15 +53,28 @@ void AsyncLogging::Append(const char* line, size_t len) {
 }
 
 void AsyncLogging::Start() {
+  assert(!running_);
+  // Start() 一般在子线程启动前由主线程执行, 不需要加锁.
   running_ = true;
+  asyncLog = this;
+  Logger::SetOutputFunc(&AsyncLogging::AsyncOutput);
   thread_.Start();
   latch_.Wait();
 }
 
 void AsyncLogging::Stop() {
+  assert(running_);
   running_ = false;
+  asyncLog = nullptr;
+  Logger::SetOutputFunc(&wethands::DefaultOutput);
   notEmpty_.Notify();
   thread_.Join();
+}
+
+AsyncLogging* AsyncLogging::asyncLog = nullptr;
+
+void AsyncLogging::AsyncOutput(const char* line, size_t len) {
+  asyncLog->Append(line, len);
 }
 
 void AsyncLogging::ThreadFunc() {

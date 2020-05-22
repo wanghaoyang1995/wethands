@@ -21,7 +21,7 @@ namespace wethands {
 class LogFile : public Uncopyable {
  public:
   LogFile(const std::string& basename,
-          off_t rollsize,
+          size_t rollsize,
           bool threadSafe = true,
           int flushInterval = 3,
           int checkEveryNAppend = 1024);
@@ -43,7 +43,7 @@ class LogFile : public Uncopyable {
   // 必须是文件名而不是路径名.
   const std::string basename_;
   // 检查时已写字节数若超过 rollsize_, 就转向下一轮文件.
-  const off_t rollsize_;
+  const size_t rollsize_;
   // 检查时距上次 flush 秒数若超过 flushInterval_, 就冲洗缓冲区.
   const int flushInterval_;
   // 每调用 Append() checkEveryNAppend_ 次, 就进行一次检查.
@@ -54,12 +54,10 @@ class LogFile : public Uncopyable {
 
   Timestamp lastRoll_;  // 上一次调用 RollFile() 的时刻.
   Timestamp lastFlush_;  // 上一次调用 Flush() 的时刻.
-  Timestamp currentPeriod_;  // 当前周期的起始时刻.
+  Timestamp currentPeriod_;  // 当前周期(天)的起始时刻.
 
   std::unique_ptr<FileUtil::AppendFile> file_;
   std::unique_ptr<MutexLock> lock_;
-
-  static const int kSecondsPerPeriod_ = 60 * 60 * 24;  // 每周期(24h)的秒数.
 };
 
 }  // namespace wethands

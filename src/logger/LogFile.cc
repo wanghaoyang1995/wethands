@@ -10,7 +10,7 @@
 using wethands::LogFile;
 
 LogFile::LogFile(const std::string& basename,
-                 off_t rollsize,
+                 size_t rollsize,
                  bool threadSafe,
                  int flushInterval,
                  int checkEveryNAppend)
@@ -28,6 +28,7 @@ LogFile::LogFile(const std::string& basename,
 }
 
 void LogFile::Append(const char* line, size_t len) {
+  if (len == 0) return;
   if (lock_) {
     MutexLockGuard guard(*lock_);
     AppendUnlocked(line, len);
@@ -55,23 +56,27 @@ void LogFile::Flush() {
 }
 
 void LogFile::AppendUnlocked(const char* line, size_t len) {
-  file_->Append(line, len);
-  if (file_->WrittenBytes() >= rollsize_) {
-    RollFileUnlocked();
-  } else {
-    ++appendCount_;
+  if (file_->WrittenBytes() + len > rollsize_) {  // 文件即将到达指定大小.
+    RollFileUnlocked();  // 创建新文件.
+    appendCount_ = 0;
+  } else {  // 文件未达到指定大小.
     if (appendCount_ >= checkEveryNAppend_) {  // Append达到次数就会触发检查.
       appendCount_ = 0;
       Timestamp now = Timestamp::Now();
-      if (currentPeriod_ < now.RoundByDay()) {  // 如果跨越了周期, 就RollFile().
+      Timestamp startOfToday = now.RoundByDay();
+
+      if (currentPeriod_ < startOfToday) {  // 如果跨越了周期, 就RollFile().
         RollFileUnlocked();
+        currentPeriod_ = startOfToday;
       } else if (SecondsDifference(now, lastFlush_) >=
-                 static_cast<double>(flushInterval_)) {
-        lastFlush_ = now;
+                 static_cast<double>(flushInterval_)) {  // 超过了刷新间隔, 刷新.
         file_->Flush();
+        lastFlush_ = now;
       }
     }
   }
+  file_->Append(line, len);
+  ++appendCount_;
 }
 
 void LogFile::RollFileUnlocked() {

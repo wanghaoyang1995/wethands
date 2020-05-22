@@ -9,6 +9,7 @@
 #include <cstring>
 #include <cstdio>
 #include <string>
+#include <utility>
 
 #include "src/thread/CurrentThread.h"
 #include "src/utils/Timestamp.h"
@@ -57,7 +58,7 @@ Logger::Logger(const char* file, int line, LogLevel level, int savedErrno)
 
 Logger::~Logger() {
   stream_ << "\n";
-  std::string msg = stream_.str();
+  std::string msg = std::move(stream_.str());
   gOutput(msg.c_str(), msg.size());
   if (level_ == LogLevel::FATAL) {
     gFlush();
@@ -65,8 +66,8 @@ Logger::~Logger() {
   }
 }
 
-Logger::LogLevel Logger::getLogLevel() { return wethands::gLogLevel; }
-void Logger::setLogLevel(LogLevel level) { wethands::gLogLevel = level; }
+Logger::LogLevel Logger::GetLogLevel() { return wethands::gLogLevel; }
+void Logger::SetLogLevel(LogLevel level) { wethands::gLogLevel = level; }
 
-void Logger::setOutputFunc(OutputFunc output) { wethands::gOutput = output; }
-void Logger::setFlushFunc(FlushFunc flush) { wethands::gFlush = flush; }
+void Logger::SetOutputFunc(OutputFunc output) { wethands::gOutput = output; }
+void Logger::SetFlushFunc(FlushFunc flush) { wethands::gFlush = flush; }

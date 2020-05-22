@@ -26,8 +26,8 @@ void test() {
 }
 
 int main() {
-  Logger::setOutputFunc(output);
-  Logger::setFlushFunc(flush);
+  Logger::SetOutputFunc(output);
+  Logger::SetFlushFunc(flush);
   test();
   return 0;
 }

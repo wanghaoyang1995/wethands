@@ -6,7 +6,6 @@
 #ifndef SRC_UTILS_FILEUTIL_H_
 #define SRC_UTILS_FILEUTIL_H_
 
-#include <unistd.h>
 #include <string>
 #include "src/utils/Uncopyable.h"
 
@@ -25,11 +24,11 @@ class AppendFile : public Uncopyable {
   // 写够len字节返回, 或者出错返回.
   void Append(const char* line, size_t len);
   void Flush();
-  off_t WrittenBytes() const { return writtenBytes_; }
+  size_t WrittenBytes() const { return writtenBytes_; }
 
  private:
   FILE* fp_;
-  off_t writtenBytes_;  // 已写字节数.
+  size_t writtenBytes_;  // 已写字节数.
   char buffer_[64*1024];  // 64KB自定义缓冲区大小. 给fwrite_unlocked使用.
 };
 

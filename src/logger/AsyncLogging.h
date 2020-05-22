@@ -6,7 +6,6 @@
 #ifndef SRC_LOGGER_ASYNCLOGGING_H_
 #define SRC_LOGGER_ASYNCLOGGING_H_
 
-#include <unistd.h>
 #include <atomic>
 #include <cstring>
 #include <memory>
@@ -21,10 +20,10 @@
 namespace wethands {
 namespace details {
 
-constexpr int kSmallBufferSize = 4 * 1024;  // 4KiB
-constexpr int kLargeBufferSize = 4 * 1024 * 1024;  // 4MiB
+constexpr size_t kSmallBufferSize = 4 * 1024;  // 4KiB
+constexpr size_t kLargeBufferSize = 4 * 1024 * 1024;  // 4MiB
 
-template <int SIZE>
+template <size_t SIZE>
 class FixedBuffer : Uncopyable {
  public:
   FixedBuffer() : cur_(buffer_) {}
@@ -35,7 +34,7 @@ class FixedBuffer : Uncopyable {
   // 只有在空间足够的情况下会成功.
   void Append(const char* data, size_t len) {
     if (AvailableBytes() > len) {
-      ::memcpy(buffer_, data, len);
+      ::memcpy(cur_, data, len);
       cur_ += len;
     }
   }
@@ -55,20 +54,24 @@ class FixedBuffer : Uncopyable {
 
 }  // namespace details
 
-// 异步的日志系统后端组件. 该类对象应该是全局唯一的.
+// 异步的日志系统后端组件.
+// 使用者应保证该类对象是全局唯一的.
+// 如果使用了该类, 最好不要手动调用Logger::SetOutputFunc.
 class AsyncLogging : Uncopyable {
  public:
   AsyncLogging(const std::string& basename,
-               off_t rollsize,
+               size_t rollsize,
                int flushInterval = 3);
   ~AsyncLogging();
   // 将日志放入缓冲区队列, 等待后台线程写入文件.
   // 该函数由日志系统前端调用.
+  // 是线程安全的.
   void Append(const char* line, size_t len);
-  // 启动异步日志系统.
-  // 会创建一个后台线程做文件写入的工作.
+  // 启动异步日志系统. 会创建一个后台线程做文件写入的工作.
+  // 注意: 必须在子线程开启之前由主线程执行.
   void Start();
   // 关闭异步日志系统.
+  // 注意: 必须在所有子线程都退出后由主线程执行.
   void Stop();
 
  private:
@@ -76,6 +79,9 @@ class AsyncLogging : Uncopyable {
   typedef std::vector<std::unique_ptr<Buffer>> BufferVector;
   typedef BufferVector::value_type BufferPtr;
 
+  static AsyncLogging* asyncLog;  // 指向全局唯一对象.
+  // 前端指定的输出函数.
+  static void AsyncOutput(const char* line, size_t len);
   // 后台线程反复地从缓冲队列中取出并写入文件.
   void ThreadFunc();
 
