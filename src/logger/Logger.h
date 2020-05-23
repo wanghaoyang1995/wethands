@@ -16,8 +16,8 @@ void DefaultFlush();
 // 日志系统前端的记录器.
 class Logger {
  public:
-  typedef void (*OutputFunc)(const char*, size_t);
-  typedef void (*FlushFunc)();
+  using OutputFunc = void (*)(const char*, size_t);
+  using FlushFunc = void (*)();
   enum LogLevel {
     TRACE,           // 细粒度的记录. Release编译时也会输出.
     DEBUG,           // 用于调试的细粒度记录. 只有在Debug编译模式下会输出.

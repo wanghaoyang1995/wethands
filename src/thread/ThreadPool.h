@@ -20,7 +20,7 @@ namespace wethands {
 
 class ThreadPool : public Uncopyable {
  public:
-  typedef std::function<void ()> Task;
+  using Task = std::function<void ()>;
 
   explicit ThreadPool(const std::string& name = std::string("ThreadPool"));
   ~ThreadPool();

@@ -19,6 +19,8 @@ template <typename T>
 class AtomicInterger : public Uncopyable {
  public:
   AtomicInterger() : value_(0) {}
+  explicit AtomicInterger(T value) : value_(value) {}
+  ~AtomicInterger() = default;
 
   T Get() {
     return __atomic_load_n(&value_, __ATOMIC_SEQ_CST);
@@ -50,8 +52,8 @@ class AtomicInterger : public Uncopyable {
 
 }  // namespace details
 
-typedef details::AtomicInterger<int32_t> AtomicInt32;
-typedef details::AtomicInterger<int64_t> AtomicInt64;
+using AtomicInt32 = details::AtomicInterger<int32_t>;
+using AtomicInt64 = details::AtomicInterger<int64_t>;
 
 }  // namespace wethands
 

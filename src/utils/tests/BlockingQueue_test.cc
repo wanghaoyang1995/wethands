@@ -38,7 +38,7 @@ void test1() {
 }
 
 void test2() {
-  typedef std::unique_ptr<int> Ptr;
+  using Ptr = std::unique_ptr<int> ;
   BlockingQueue<Ptr> q1;
   BoundedBlockingQueue<Ptr> q2(50);
   Thread t1([&q1, &q2](){

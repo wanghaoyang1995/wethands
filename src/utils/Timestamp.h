@@ -16,9 +16,9 @@
 namespace wethands {
 
 // 用于记录时刻的时间戳类. 值语义.
-class Timestamp : public wethands::Copyable,
-                  public wethands::LessThanComparable<Timestamp>,
-                  public wethands::EqualityComparable<Timestamp> {
+class Timestamp : public Copyable,
+                  public LessThanComparable<Timestamp>,
+                  public EqualityComparable<Timestamp> {
  public:
   Timestamp() : microsecondsSinceEpoch_(0) {}
   explicit Timestamp(int64_t microsecondsSinceEpoch)
@@ -42,6 +42,7 @@ class Timestamp : public wethands::Copyable,
 
   // 返回当前时刻的时间戳.
   static Timestamp Now();
+  static Timestamp Invalid() { return Timestamp(); }
 
   static constexpr int kMicrosecondsPerSecond = 1000000;
   static constexpr int kNanosecondsPerMicrosecond = 1000;

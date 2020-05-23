@@ -50,7 +50,7 @@ void* pthreadFunc(void* arg) {
 
 using wethands::Thread;
 
-wethands::AtomicInt32 Thread::numCreated_;
+wethands::AtomicInt32 Thread::numCreated_(0);
 
 Thread::Thread(ThreadFunc func, const std::string& name)
     : func_(std::move(func)),

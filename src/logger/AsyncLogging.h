@@ -24,7 +24,7 @@ constexpr size_t kSmallBufferSize = 4 * 1024;  // 4KiB
 constexpr size_t kLargeBufferSize = 4 * 1024 * 1024;  // 4MiB
 
 template <size_t SIZE>
-class FixedBuffer : Uncopyable {
+class FixedBuffer : public Uncopyable {
  public:
   FixedBuffer() : cur_(buffer_) {}
   ~FixedBuffer() = default;
@@ -57,7 +57,7 @@ class FixedBuffer : Uncopyable {
 // 异步的日志系统后端组件.
 // 使用者应保证该类对象是全局唯一的.
 // 如果使用了该类, 最好不要手动调用Logger::SetOutputFunc.
-class AsyncLogging : Uncopyable {
+class AsyncLogging : public Uncopyable {
  public:
   AsyncLogging(const std::string& basename,
                size_t rollsize,
@@ -75,9 +75,9 @@ class AsyncLogging : Uncopyable {
   void Stop();
 
  private:
-  typedef details::FixedBuffer<details::kLargeBufferSize> Buffer;
-  typedef std::vector<std::unique_ptr<Buffer>> BufferVector;
-  typedef BufferVector::value_type BufferPtr;
+  using Buffer = details::FixedBuffer<details::kLargeBufferSize>;
+  using BufferVector =  std::vector<std::unique_ptr<Buffer>>;
+  using BufferPtr = BufferVector::value_type;
 
   static AsyncLogging* asyncLog;  // 指向全局唯一对象.
   // 前端指定的输出函数.

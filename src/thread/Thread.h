@@ -16,7 +16,7 @@ namespace wethands {
 // pthread线程的封装类. 不可拷贝.
 class Thread : public Uncopyable {
  public:
-  typedef std::function<void ()> ThreadFunc;
+  using ThreadFunc = std::function<void ()>;
 
   explicit Thread(ThreadFunc func, const std::string& name);
   // 如果正在运行且没有join, 就将线程分离.
@@ -39,8 +39,8 @@ class Thread : public Uncopyable {
   bool joined_;
   pid_t tid_;
   pthread_t pthreadId_;
-  static AtomicInt32 numCreated_;  // 已创建线程数.
   CountDownLatch latch_;  // 用于线程创建时与子线程间的同步.
+  static AtomicInt32 numCreated_;  // 已创建线程数.
 };
 
 }  // namespace wethands
