@@ -43,6 +43,7 @@ void* pthreadFunc(void* arg) {
   ThreadData* data = static_cast<details::ThreadData*>(arg);
   data->RunInThread();
   delete data;  // 重要.
+  return nullptr;
 }
 
 }  // namespace details

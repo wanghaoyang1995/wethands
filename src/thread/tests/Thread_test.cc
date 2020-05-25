@@ -29,6 +29,6 @@ int main() {
   assert(t4.Joined() == true);
   assert(t4.Started() == true);
 
-  assert(Thread::GetNumCreated() == 4);
+  assert(Thread::NumCreated() == 4);
   return 0;
 }

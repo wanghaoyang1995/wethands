@@ -27,10 +27,10 @@ class Thread : public Uncopyable {
   void Join();
   bool Started() const { return started_; }
   bool Joined() const { return joined_; }
-  pid_t GetTid() const { return tid_; }
-  pthread_t GetPhtreadId() const { return pthreadId_; }
-  std::string GetName() const { return name_; }
-  static int GetNumCreated() { return numCreated_.Get(); }
+  pid_t Tid() const { return tid_; }
+  pthread_t PhtreadId() const { return pthreadId_; }
+  std::string Name() const { return name_; }
+  static int NumCreated() { return numCreated_.Get(); }
 
  private:
   ThreadFunc func_;

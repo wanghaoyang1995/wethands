@@ -15,8 +15,8 @@
 
 namespace wethands {
 
-// 计时器.
-// 本身并没有计时功能, 只是将回调函数与时间信息相关联.
+// 定时器.
+// 本身并没有定时功能, 只是将回调函数与时间信息相关联.
 // 不要单独使用. 与 TimerIndex, TimerQueue配合使用.
 class Timer : public Uncopyable {
  public:
