@@ -41,11 +41,14 @@ Timestamp Poller::Poll(int timeout, std::vector<Channel*>* activeChannels) {
   Timestamp now = Timestamp::Now();
   LOG_TRACE << "epoll_wait return: numEvents = " << numEvents;
 
-  // 将被激活的 Channel 放入activeChannels.
+  // 将被激活的 Channel 放入 activeChannels. 并更新其 revents.
+  // 调用者应确保 activeChannels 为空.
   for (int i = 0; i < numEvents; ++i) {
     Channel* channel = static_cast<Channel*>(events_[i].data.ptr);
     activeChannels->push_back(channel);
+    channel->UpdateRevents(events_[i].events);
   }
+  assert(activeChannels->size() == static_cast<size_t>(numEvents));
   // 如果 events_ 用满了, 就加倍扩容.
   if (numEvents == events_.size()) events_.resize(events_.size() * 2);
   errno = savedErrno;
@@ -62,7 +65,8 @@ void Poller::UpdateChannel(Channel* channel) {
 
   // 添加或更新.
   int op = channel->Registered() ? EPOLL_CTL_MOD: EPOLL_CTL_ADD;
-  LOG_TRACE << "UpdateChannel(): fd = " << channel->Fd();
+  LOG_TRACE << "UpdateChannel(): fd = " << channel->Fd()
+            << ", op = " << op;
   int ret = ::epoll_ctl(epollfd_, op, channel->Fd(), &ev);
   if (ret < 0) {
     LOG_SYSFATAL << "epoll_ctl() error.";

@@ -20,7 +20,7 @@ class EventLoop;
 // 多路复用器. 使用 epoll.
 class Poller : public Uncopyable {
  public:
-  Poller(EventLoop* loop);
+  explicit Poller(EventLoop* loop);
   ~Poller();
   // 阻塞并监控文件描述符, 直到有事件发生时或者超过timeout毫秒时返回.
   // 返回时 activeChannels 所指向的列表中填充了发生事件的 Channel.

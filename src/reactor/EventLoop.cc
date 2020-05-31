@@ -6,12 +6,15 @@
 #include "src/reactor/EventLoop.h"
 #include <unistd.h>
 #include <sys/eventfd.h>
+#include <utility>
 #include "src/logger/Logger.h"
 
 namespace wethands {
 namespace details {
 
 __thread EventLoop* t_loopOfCurrentThread = nullptr;
+
+constexpr int kPollTimeoutsMs = 10000;  // 10秒.
 
 // 创建并检查 eventfd.
 // https://man7.org/linux/man-pages/man2/eventfd.2.html
@@ -58,7 +61,22 @@ EventLoop::~EventLoop() {
 }
 
 void EventLoop::Loop() {
+  assert(!quit_);
+  assert(IsInLoopThread());
+  LOG_TRACE << "Loop() started.";
 
+  while (!quit_) {
+    activeChannels_.clear();
+    poller_->Poll(details::kPollTimeoutsMs, &activeChannels_);
+    for (Channel* channel : activeChannels_) {
+      channel->HandleEvent();
+    }
+    // 执行待处理的任务.
+    for (const Functor& func : pendingFunctors_) {
+      func();
+    }
+    pendingFunctors_.clear();
+  }
 }
 
 void EventLoop::Quit() {
@@ -69,8 +87,11 @@ void EventLoop::Quit() {
 }
 
 void EventLoop::RunInLoop(Functor cb) {
-  if (IsInLoopThread()) cb();
-  else QueueInLoop(std::move(cb));
+  if (IsInLoopThread()) {
+    cb();
+  } else {
+    QueueInLoop(std::move(cb));
+  }
 }
 
 void EventLoop::QueueInLoop(Functor cb) {
@@ -122,9 +143,16 @@ EventLoop* EventLoop::CurrentThreadLoop() {
 
 void EventLoop::HandleEventfdRead() {
   uint64_t buf;
-
+  ssize_t n = ::read(eventfd_, &buf, sizeof(buf));
+  if (n != sizeof(buf)) {
+    LOG_ERROR << "HandleEventfdRead(): unexcepted bytes read.";
+  }
 }
 
-void Wakeup() {
-
+void EventLoop::Wakeup() {
+  uint64_t buf = 1;
+  ssize_t n = ::write(eventfd_, &buf, sizeof(buf));
+  if (n != sizeof(buf)) {
+    LOG_ERROR << "Wakeup(): unexcepted bytes writen.";
+  }
 }

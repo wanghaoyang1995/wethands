@@ -8,6 +8,7 @@
 
 #include <cstdint>
 #include <functional>
+#include <utility>
 #include "src/thread/Atomic.h"
 #include "src/utils/Timestamp.h"
 #include "src/utils/Copyable.h"

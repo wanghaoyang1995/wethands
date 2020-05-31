@@ -41,13 +41,12 @@ void Channel::HandleEvent() {
 }
 
 void Channel::RegisterToPoller() {
-  assert(events_ != kNoneEvent);
-  registeredToPoller = true;  // 已注册.
   loop_->UpdateChannel(this);
+  registeredToPoller = true;  // 已注册.
 }
 
 void Channel::RemoveFromPoller() {
   assert(events_ == kNoneEvent);
-  registeredToPoller = false;  // 取消注册.
   loop_->RemoveChannel(this);
+  registeredToPoller = false;  // 取消注册.
 }
