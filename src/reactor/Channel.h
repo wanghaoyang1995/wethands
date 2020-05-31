@@ -25,6 +25,7 @@ class Channel : public Uncopyable {
 
   int Fd() const { return fd_; }
   int Events() const { return events_; }
+  EventLoop* OwerLoop() const { return loop_; }
   bool Registered() const { return registeredToPoller; }
   void UpdateRevents(int revents) { revents_ = revents; }
 

@@ -58,8 +58,13 @@ class TimerIndex : public Copyable {
       : timer_(timer),
         expiration_(expiration),
         sequence_(sequence) {}
+
+  TimerIndex(const TimerIndex&) = default;
   // 默认析构足够了. 管理 Timer 的生命周期是 TimerQueue的责任.
   ~TimerIndex() = default;
+
+  Timestamp Expiration() const { return expiration_; }
+  int64_t Sequence() const { return sequence_; }
 
   // 为了在有序容器中使用.
   // 首先比较到期时间, 先到期者小.
@@ -70,13 +75,23 @@ class TimerIndex : public Copyable {
         sequence_ < rhs.sequence_;
   }
 
+  bool operator==(const TimerIndex& rhs) const {
+    return timer_ == rhs.timer_ &&
+           expiration_ == rhs.expiration_ &&
+           sequence_ == rhs.sequence_;
+  }
+
   friend class TimerQueue;
 
  private:
   Timer* timer_;
-  Timestamp expiration_;
-  int64_t sequence_;
+  const Timestamp expiration_;
+  const int64_t sequence_;
 };
+
+static_assert(
+  sizeof(TimerIndex) == sizeof(Timer*) + sizeof(Timestamp) + sizeof(int64_t),
+  "unexpect size.");
 
 }  // namespace wethands
 

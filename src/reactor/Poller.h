@@ -9,12 +9,13 @@
 #include <sys/epoll.h>
 #include <map>
 #include <vector>
-#include "src/reactor/EventLoop.h"
 #include "src/reactor/Channel.h"
 #include "src/utils/Timestamp.h"
 #include "src/utils/Uncopyable.h"
 
 namespace wethands {
+
+class EventLoop;
 
 // 多路复用器. 使用 epoll.
 class Poller : public Uncopyable {
@@ -26,6 +27,7 @@ class Poller : public Uncopyable {
   Timestamp Poll(int timeout, std::vector<Channel*>* activeChannels);
   void UpdateChannel(Channel* channel);
   void RemoveChannel(Channel* channel);
+  // 注册列表中有 channel, 就返回true.
   bool HasChannel(Channel* channel);
 
   // 就绪事件列表的大小.
@@ -38,6 +40,6 @@ class Poller : public Uncopyable {
   std::vector<struct epoll_event> events_;  // epoll_wait() 就绪事件列表.
 };
 
-}
+}  // namespace wethands
 
 #endif  // SRC_REACTOR_POLLER_H_

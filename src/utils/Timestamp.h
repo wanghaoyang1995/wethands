@@ -8,6 +8,7 @@
 
 #include <time.h>
 #include <cstdint>
+#include <cstring>
 #include <string>
 
 #include "src/utils/Copyable.h"
@@ -52,6 +53,8 @@ class Timestamp : public Copyable,
   int64_t microsecondsSinceEpoch_;
 };
 
+static_assert(sizeof(Timestamp) == sizeof(int64_t), "Unexpected size.");
+
 inline bool operator<(const Timestamp& lhs, const Timestamp& rhs) {
   return lhs.MicrosecondsSinceEpoch() < rhs.MicrosecondsSinceEpoch();
 }
@@ -61,9 +64,23 @@ inline bool operator==(const Timestamp& lhs, const Timestamp& rhs) {
 }
 
 // 返回high与low之间的秒数差.
+// 用户需要保证 high > low, 否则返回为负值.
 inline double SecondsDifference(Timestamp high, Timestamp low) {
   int64_t diff = high.MicrosecondsSinceEpoch() - low.MicrosecondsSinceEpoch();
   return static_cast<double>(diff) / Timestamp::kMicrosecondsPerSecond;
+}
+
+// 返回两时间差的 timespec 结构.
+inline struct timespec TimeDifference(Timestamp high, Timestamp low) {
+  struct timespec ts;
+  ::memset(&ts, 0, sizeof(ts));
+  int64_t msDiff = high.MicrosecondsSinceEpoch() - low.MicrosecondsSinceEpoch();
+  ts.tv_sec = static_cast<decltype(ts.tv_sec)>(
+              msDiff / Timestamp::kMicrosecondsPerSecond);
+  ts.tv_nsec = static_cast<decltype(ts.tv_nsec)>(
+               msDiff % Timestamp::kMicrosecondsPerSecond *
+               Timestamp::kNanosecondsPerMicrosecond);
+  return ts;
 }
 
 inline Timestamp AddSeconds(Timestamp timestamp, double seconds) {
