@@ -1,6 +1,7 @@
 set(reactor_SRCS
   Channel.cc
   EventLoop.cc
+  EventLoopThread.cc
   Poller.cc
   Timer.cc
   TimerQueue.cc

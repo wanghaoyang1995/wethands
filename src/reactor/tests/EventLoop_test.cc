@@ -13,6 +13,7 @@ void print(int i) {
 int main() {
   //Logger::SetLogLevel(Logger::LogLevel::TRACE);
   EventLoop loop;
+  assert(EventLoop::CurrentThreadLoop() == &loop);
   loop.RunAfter(1.0, std::bind(print, 2));
   loop.RunEvery(2.0, [](){
     printf("hello\n");

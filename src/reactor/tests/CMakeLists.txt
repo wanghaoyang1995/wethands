@@ -3,3 +3,6 @@ target_link_libraries(Timer_test wethands)
 
 add_executable(EventLoop_test EventLoop_test.cc)
 target_link_libraries(EventLoop_test wethands)
+
+add_executable(EventLoopThread_test EventLoopThread_test.cc)
+target_link_libraries(EventLoopThread_test wethands)
