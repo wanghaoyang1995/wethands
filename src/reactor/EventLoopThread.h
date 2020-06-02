@@ -36,6 +36,6 @@ class EventLoopThread : public Uncopyable {
   InitCallback initCallback_;
 };
 
-}
+}  // namespace wethands
 
 #endif  // SRC_REACTOR_EVENTLOOPTHREAD_H_

@@ -22,6 +22,8 @@
 
 namespace wethands {
 // 事件循环, Reactor 模式的核心类.
+// 使用者应保证输入给 EventLoop 的 Functor 不为空.
+// Functor 尽量不要有太多耗时操作.
 class EventLoop : public Uncopyable {
  public:
   using Functor = std::function<void ()>;

@@ -133,8 +133,10 @@ void TimerQueue::HandleRead() {
       delete timerIndex.timer_;  // 删除已过期且不需要重启的定时器.
     }
   }
-  // 更新 timerfd_ 的到期时间.
-  details::UpdateTimerfd(timerfd_, timers_.begin()->Expiration());
+  // 如果队列中还有定时器, 更新 timerfd_ 的到期时间.
+  if (!timers_.empty()) {
+    details::UpdateTimerfd(timerfd_, timers_.begin()->Expiration());
+  }
 }
 
 std::vector<TimerIndex> TimerQueue::GetExpired(Timestamp now) {

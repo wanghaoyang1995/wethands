@@ -6,3 +6,6 @@ target_link_libraries(EventLoop_test wethands)
 
 add_executable(EventLoopThread_test EventLoopThread_test.cc)
 target_link_libraries(EventLoopThread_test wethands)
+
+add_executable(EventLoopThreadPool_test EventLoopThreadPool_test.cc)
+target_link_libraries(EventLoopThreadPool_test wethands)

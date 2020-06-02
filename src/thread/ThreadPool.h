@@ -17,7 +17,8 @@
 #include "src/utils/Uncopyable.h"
 
 namespace wethands {
-
+// 线程池.
+// 只能 开启-关闭 一次, 关闭后不支持重启.
 class ThreadPool : public Uncopyable {
  public:
   using Task = std::function<void ()>;
@@ -26,6 +27,7 @@ class ThreadPool : public Uncopyable {
   ~ThreadPool();
 
   void Start(int numThreads);
+  // Stop() 后应销毁, 不可再调用 Start().
   void Stop();
 
   const std::string& Name() const { return name_; }

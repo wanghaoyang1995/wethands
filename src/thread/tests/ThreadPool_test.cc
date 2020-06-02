@@ -42,6 +42,5 @@ int main() {
   pool.Run(threadfunc);
   t.Join();
 
-  //pool.Stop();
   return 0;
 }

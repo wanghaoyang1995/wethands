@@ -68,14 +68,22 @@ void EventLoop::Loop() {
   while (!quit_) {
     activeChannels_.clear();
     poller_->Poll(details::kPollTimeoutsMs, &activeChannels_);
+    LOG_DEBUG << "activeChannels_.size() = " << activeChannels_.size();
     for (Channel* channel : activeChannels_) {
       channel->HandleEvent();
     }
+    LOG_DEBUG << "pendingFunctors_.size() = " << pendingFunctors_.size();
+
+    std::vector<Functor> functors;
+    {  // 加锁. 其他线程也会访问 pendingFunctors_.
+      MutexLockGuard guard(lock_);
+      functors.swap(pendingFunctors_);
+    }
     // 执行待处理的任务.
-    for (const Functor& func : pendingFunctors_) {
+    // 如果这一步耗时太多, 会影响其他 loop 事件的及时处理, 例如 Quit().
+    for (const Functor& func : functors) {
       func();
     }
-    pendingFunctors_.clear();
   }
 }
 

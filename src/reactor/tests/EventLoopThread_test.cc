@@ -4,7 +4,11 @@
 
 using namespace wethands;
 
-int main() {/*
+void init() {
+  printf("init()\n");
+}
+
+int main() {
   {
     EventLoopThread loopThread1;
   }
@@ -15,8 +19,8 @@ int main() {/*
     loop->RunInLoop([](){
       printf("run in loopThread2.\n");
     });
-  }*/
-  EventLoopThread loopThread3;
+  }
+  EventLoopThread loopThread3(init, "loopThread3");
   EventLoop* loop = loopThread3.StartLoop();
   loop->RunEvery(1.0, [](){
     printf("run in loopThread3.\n");
