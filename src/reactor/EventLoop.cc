@@ -5,6 +5,7 @@
 
 #include "src/reactor/EventLoop.h"
 #include <unistd.h>
+#include <signal.h>
 #include <sys/eventfd.h>
 #include <utility>
 #include "src/logger/Logger.h"
@@ -25,6 +26,21 @@ int CreateEventfd() {
   }
   return fd;
 }
+
+// 对整个进程屏蔽 SIGPIPE 信号.
+class IgnoreSigpipe {
+ public:
+  IgnoreSigpipe() {
+    struct sigaction act;
+    act.sa_handler = SIG_IGN;
+    act.sa_flags = 0;
+    if (::sigaction(SIGPIPE, &act, 0) == -1) {
+      LOG_SYSFATAL << "sigaction() error.";
+    }
+  }
+};
+
+IgnoreSigpipe ignoreSigpipe;
 
 }  // namespace details
 }  // namespace wethands
