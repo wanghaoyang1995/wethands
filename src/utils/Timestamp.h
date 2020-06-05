@@ -53,8 +53,6 @@ class Timestamp : public Copyable,
   int64_t microsecondsSinceEpoch_;
 };
 
-static_assert(sizeof(Timestamp) == sizeof(int64_t), "Unexpected size.");
-
 inline bool operator<(const Timestamp& lhs, const Timestamp& rhs) {
   return lhs.MicrosecondsSinceEpoch() < rhs.MicrosecondsSinceEpoch();
 }

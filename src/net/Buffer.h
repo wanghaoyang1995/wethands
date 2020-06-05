@@ -17,6 +17,15 @@ class Buffer : public Copyable {
   explicit Buffer(size_t initialSize);
   ~Buffer() = default;
 
+  void Swap(Buffer& rhs);
+
+  size_t ReadableBytes() const;
+  size_t WritableBytes() const;
+  // 返回前置位置可存放的字节数.
+  size_t PrependableBytes() const;
+
+
+
  private:
   std::vector<char> buffer_;
   size_t readIndex_;

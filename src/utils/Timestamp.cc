@@ -11,6 +11,8 @@
 using std::string;
 using wethands::Timestamp;
 
+static_assert(sizeof(Timestamp) == sizeof(int64_t), "Unexpected size.");
+
 Timestamp Timestamp::Now() {
   struct timespec ts;
   ::clock_gettime(CLOCK_REALTIME, &ts);
