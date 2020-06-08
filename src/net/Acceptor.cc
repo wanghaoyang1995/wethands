@@ -6,34 +6,9 @@
 #include "src/net/Acceptor.h"
 #include <fcntl.h>
 #include <sys/socket.h>
-#include <unistd.h>
 #include <cassert>
 #include <functional>
 #include "src/logger/Logger.h"
-
-namespace wethands {
-namespace details {
-
-int CreateSocket() {
-  // 创建套接字, 使用 ipv4 的 TCP 协议.
-  int fd = ::socket(AF_INET,
-                    SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC,
-                    IPPROTO_TCP);
-  if (fd < 0) {
-    LOG_SYSFATAL << "CreatSocket() error.";
-  }
-  return fd;
-}
-
-void CloseFd(int fd) {
-  int ret = ::close(fd);
-  if (ret < 0) {
-    LOG_SYSFATAL << "CloseFd() error.";
-  }
-}
-
-}  // namespace details
-}  // namespace wethads
 
 using wethands::Acceptor;
 
@@ -42,7 +17,7 @@ Acceptor::Acceptor(EventLoop* loop,
                    bool reusePort)
     : loop_(loop),
       listening_(false),
-      listenSocket_(details::CreateSocket()),
+      listenSocket_(Socket::CreateSocketFd()),
       listenSocketChannel_(loop, listenSocket_.Fd()),
       newConnectionCallback_(),
       placeholderFd_(::open("/dev/null", O_RDONLY | O_CLOEXEC)) {
@@ -55,7 +30,7 @@ Acceptor::Acceptor(EventLoop* loop,
 Acceptor::~Acceptor() {
   listenSocketChannel_.DisableAll();
   listenSocketChannel_.RemoveFromPoller();
-  details::CloseFd(placeholderFd_);
+  Socket::CloseFd(placeholderFd_);
 }
 
 void Acceptor::Listen() {
@@ -74,15 +49,15 @@ void Acceptor::HandleRead() {
     if (newConnectionCallback_) {
       newConnectionCallback_(connfd, peerAddr);
     } else {
-      details::CloseFd(connfd);
+      Socket::CloseFd(connfd);
     }
   } else {
     LOG_SYSERROR << "Socket::Accept() error.";
     if (errno == EMFILE) {  // 描述符用尽.
       // 连接后马上断开.
-      details::CloseFd(placeholderFd_);
+      Socket::CloseFd(placeholderFd_);
       placeholderFd_ = ::accept(listenSocket_.Fd(), nullptr, nullptr);
-      details::CloseFd(placeholderFd_);
+      Socket::CloseFd(placeholderFd_);
       placeholderFd_ = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
     }
   }

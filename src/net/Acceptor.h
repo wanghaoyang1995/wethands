@@ -17,6 +17,7 @@ namespace wethands {
 // 连接请求接受器. 不负责连接的维护.
 // 有新的请求时调用使用者指定的 NewConnectionCallback.
 // 如果不指定回调就直接关闭连接.
+// 不负责管理已连接套接字的生命周期.
 class Acceptor : public Uncopyable {
  public:
   using NewConnectionCallback =
@@ -29,7 +30,7 @@ class Acceptor : public Uncopyable {
     newConnectionCallback_ = cb;
   }
 
-  bool Listening() const { return listening_; }
+  bool IsListening() const { return listening_; }
   void Listen();
 
  private:
@@ -38,7 +39,9 @@ class Acceptor : public Uncopyable {
 
   EventLoop* loop_;
   bool listening_;
-  Socket listenSocket_;  // 监听套接字.
+  // 监听套接字.
+  // Acceptor 要负责管理监听套接字的生命周期, 所以使用 Socket.
+  Socket listenSocket_;
   Channel listenSocketChannel_;  // 与 socket_ 关联的 Channel.
   NewConnectionCallback newConnectionCallback_;
   int placeholderFd_;  // 用于占位, 为了处理描述符用尽的情况.

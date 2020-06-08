@@ -36,6 +36,11 @@ class Channel : public Uncopyable {
   void DisableWriting() { events_ &= ~kWriteEvent; RegisterToPoller(); }
   void DisableAll() { events_ = kNoneEvent; RegisterToPoller(); }
 
+  bool IsReading() const { return events_ & kReadEvent; }
+  bool IsWriting() const { return events_ & kWriteEvent; }
+  bool IsNoneEvent() const { return events_ & kNoneEvent; }
+  bool IsRegistered() const { return registeredToPoller; }
+
   // 根据 revents_ 标记的事件类型, 调用相应的事件处理回调.
   void HandleEvent();
   void SetReadCallback(EventCallback cb) { readCallback_ = std::move(cb); }

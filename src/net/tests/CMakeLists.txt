@@ -1,2 +1,5 @@
-add_executable(Socket_test Socket_test.cc)
-target_link_libraries(Socket_test wethands)
+add_executable(Acceptor_test Acceptor_test.cc)
+target_link_libraries(Acceptor_test wethands)
+
+add_executable(Connector_test Connector_test.cc)
+target_link_libraries(Connector_test wethands)

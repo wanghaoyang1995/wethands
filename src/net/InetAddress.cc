@@ -34,17 +34,13 @@ InetAddress::InetAddress(const char* ip, uint16_t port) {
 
 std::string InetAddress::ToString(bool printPort) const {
   char buf[32];
-  ::inet_ntop(AF_INET, &addr_, buf, sizeof(buf));
+  ::inet_ntop(AF_INET, &addr_.sin_addr, buf, sizeof(buf));
   if (printPort) {
     uint16_t portInHostEndian = ::be16toh(addr_.sin_port);
     size_t n = ::strnlen(buf, sizeof(buf));
     ::snprintf(buf + n, sizeof(buf) - n, ":%u", portInHostEndian);
   }
   return buf;
-}
-
-uint32_t InetAddress::IpInNetEndian() const {
-  return addr_.sin_addr.s_addr;
 }
 
 bool InetAddress::NameToAddress(const char* hostname,
