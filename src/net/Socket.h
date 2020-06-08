@@ -6,6 +6,7 @@
 #ifndef SRC_NET_SOCKET_H_
 #define SRC_NET_SOCKET_H_
 
+#include <memory>
 #include "src/net/InetAddress.h"
 #include "src/utils/Uncopyable.h"
 
@@ -43,6 +44,8 @@ class Socket : public Uncopyable {
  private:
   const int sockfd_;
 };
+
+using SocketPtr = std::unique_ptr<Socket>;
 
 }  // namespace wethands
 

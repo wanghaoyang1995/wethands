@@ -3,6 +3,7 @@ set(net_SRCS
   Connector.cc
   InetAddress.cc
   Socket.cc
+  TcpServer.cc
 )
 
 add_library(wethands_net OBJECT ${net_SRCS})

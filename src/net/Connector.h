@@ -18,12 +18,12 @@
 
 namespace wethands {
 // 连接请求发起器.
-// 连接成功后会调用用户定义的回调 NewConnectionCallback.
-// 连接成功后套接字的生命周期由用户接管.
+// 连接成功后会调用回调 NewConnectionCallback, 转移已连接套接字的管理权.
 class Connector : public Uncopyable {
  public:
   using NewConnectionCallback =
-    std::function<void (int connfd)>;
+    std::function<void (SocketPtr connSocket,
+                        const InetAddress& serverAddr)>;
 
   Connector(EventLoop* loop, const InetAddress& serverAddr);
   ~Connector();
@@ -31,6 +31,8 @@ class Connector : public Uncopyable {
   void SetNewConnectionCallback(const NewConnectionCallback& cb) {
     newConnectionCallback_ = cb;
   }
+  InetAddress ServerAddress() const { return serverAddr_; }
+
   // 尝试连接, 如果失败会按一定间隔重试, 直到连接成功或者调用 Cancel().
   void Start();
   // 取消连接.
@@ -49,7 +51,7 @@ class Connector : public Uncopyable {
   void Retry();
 
   EventLoop* loop_;
-  std::unique_ptr<Socket> socket_;  // 主动连接套接字.
+  SocketPtr socket_;  // 主动连接套接字.
   std::unique_ptr<Channel> socketChannel_;  // 与主动连接套接字关联.
   InetAddress serverAddr_;
   bool connecting_;

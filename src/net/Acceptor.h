@@ -7,6 +7,7 @@
 #define SRC_NET_ACCEPTOR_H_
 
 #include <functional>
+#include <memory>
 #include "src/net/InetAddress.h"
 #include "src/net/Socket.h"
 #include "src/reactor/Channel.h"
@@ -15,13 +16,12 @@
 
 namespace wethands {
 // 连接请求接受器. 不负责连接的维护.
-// 有新的请求时调用使用者指定的 NewConnectionCallback.
-// 如果不指定回调就直接关闭连接.
-// 不负责管理已连接套接字的生命周期.
+// 有新的请求时调用指定回调, 转移已连接套接字的生命周期.
 class Acceptor : public Uncopyable {
  public:
   using NewConnectionCallback =
-    std::function<void (int connfd, const InetAddress& peerAddr)>;
+    std::function<void (SocketPtr connSocket,
+                        const InetAddress& clientAddr)>;
 
   Acceptor(EventLoop* loop, const InetAddress& listenAddr, bool reusePort);
   ~Acceptor();
@@ -43,6 +43,7 @@ class Acceptor : public Uncopyable {
   // Acceptor 要负责管理监听套接字的生命周期, 所以使用 Socket.
   Socket listenSocket_;
   Channel listenSocketChannel_;  // 与 socket_ 关联的 Channel.
+  // 调用该回调,  转移新完成连接的控制权.
   NewConnectionCallback newConnectionCallback_;
   int placeholderFd_;  // 用于占位, 为了处理描述符用尽的情况.
 };

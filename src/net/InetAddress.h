@@ -20,6 +20,7 @@ class InetAddress : public Copyable {
   InetAddress(const char* ip, uint16_t port);
   InetAddress(const std::string& ip, uint16_t port)
       : InetAddress(ip.c_str(), port) {}
+  InetAddress(const struct sockaddr_in& addr) : addr_(addr) {}
 
   ~InetAddress() = default;
 

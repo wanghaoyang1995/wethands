@@ -14,7 +14,7 @@
 #include "src/utils/Uncopyable.h"
 
 namespace wethands {
-// loop子线程.
+// loop子线程. 析构时会等待线程结束.
 // 只能开启一次, 不能重复使用.
 class EventLoopThread : public Uncopyable {
  public:

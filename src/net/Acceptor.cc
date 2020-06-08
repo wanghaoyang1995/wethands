@@ -7,7 +7,7 @@
 #include <fcntl.h>
 #include <sys/socket.h>
 #include <cassert>
-#include <functional>
+#include <utility>
 #include "src/logger/Logger.h"
 
 using wethands::Acceptor;
@@ -43,13 +43,14 @@ void Acceptor::Listen() {
 void Acceptor::HandleRead() {
   // 有新的连接请求到达.
   assert(loop_->IsInLoopThread());
-  InetAddress peerAddr;
-  int connfd = listenSocket_.Accept(&peerAddr);
+  InetAddress clientAddr;
+  int connfd = listenSocket_.Accept(&clientAddr);
   if (connfd >= 0) {
+    SocketPtr connSocket(new Socket(connfd));
     if (newConnectionCallback_) {
-      newConnectionCallback_(connfd, peerAddr);
+      newConnectionCallback_(std::move(connSocket), clientAddr);
     } else {
-      Socket::CloseFd(connfd);
+      LOG_INFO << "Callback empty. Connection accepted then closed.";
     }
   } else {
     LOG_SYSERROR << "Socket::Accept() error.";

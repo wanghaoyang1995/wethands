@@ -65,7 +65,11 @@ bool InetAddress::NameToAddress(const char* hostname,
   assert(res->ai_family == AF_INET);
   assert(res->ai_socktype == SOCK_STREAM);
   assert(res->ai_protocol == IPPROTO_TCP);
-  ::memcpy(&resultAddr->addr_, res->ai_addr, sizeof(res->ai_addrlen));
+  resultAddr->addr_.sin_family = AF_INET;
+  resultAddr->addr_.sin_addr.s_addr =
+    reinterpret_cast<struct sockaddr_in*>(res->ai_addr)->sin_addr.s_addr;
+  resultAddr->addr_.sin_port =
+    reinterpret_cast<struct sockaddr_in*>(res->ai_addr)->sin_port;
   ::freeaddrinfo(res);  // 千万别忘了释放.
   return true;
 }

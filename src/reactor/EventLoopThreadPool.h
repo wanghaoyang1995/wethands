@@ -23,6 +23,7 @@ class EventLoopThreadPool : public Uncopyable {
 
   EventLoopThreadPool(EventLoop* baseLoop,
     const std::string& name = std::string("EventLoopThreadPool"));
+  // EventLoopThread可以自行析构, 这里使用默认析构即可.
   ~EventLoopThreadPool() = default;
 
   const std::string& Name() const { return name_; }

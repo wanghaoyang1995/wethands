@@ -32,7 +32,7 @@ void Connector::Start() {
 void Connector::StartInLoop() {
   assert(loop_->IsInLoopThread());
   if (stop_) return;
-
+  // 创建新的套接字.
   socket_.reset(new Socket());
   socketChannel_.reset(new Channel(loop_, socket_->Fd()));
 
@@ -118,7 +118,9 @@ void Connector::HandleWrite() {
       LOG_WARN << "self connected.";
       Retry();
     } else if (newConnectionCallback_) {
-      newConnectionCallback_(socket_.release()->Fd());
+      newConnectionCallback_(std::move(socket_), serverAddr_);
+    } else {
+      LOG_INFO << "Callback empty. Connection established then closed.";
     }
   } else {  // 有错误发生.
     LOG_ERROR << "Connector::HandleWrite(): connection error.";
