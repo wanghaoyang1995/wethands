@@ -20,7 +20,7 @@ class Socket : public Uncopyable {
   ~Socket();
 
   int Fd() const { return sockfd_; }
-  ssize_t Send(const char* msg, size_t len);
+  ssize_t Send(const void* data, size_t len);
   int Connect(const InetAddress& serverAddr);
   // 如果 sockfd_ 是自连接, 返回 true.
   bool IsSelfConnect();
@@ -35,6 +35,8 @@ class Socket : public Uncopyable {
   void SetReusePort(bool on);
   void SetKeepAlive(bool on);
   void ShutdownWrite();
+  // 获取套接字错误码, 无错误返回0.
+  int ErrorCode() const;
 
   // 创建并返回套接字, 默认是非阻塞的.
   static int CreateSocketFd();

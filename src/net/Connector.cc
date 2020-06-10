@@ -8,6 +8,7 @@
 #include <sys/socket.h>
 #include <utility>
 #include "src/logger/Logger.h"
+#include "src/utils/WeakCallback.h"
 
 using wethands::Connector;
 
@@ -17,22 +18,39 @@ Connector::Connector(EventLoop* loop, const InetAddress& serverAddr)
       socketChannel_(),
       serverAddr_(serverAddr),
       connecting_(false),
-      retryDelay_(1),
+      retryDelay_(kInitRetryDelay),
       stop_(false),
       newConnectionCallback_() {}
 
 Connector::~Connector() {
-  StopInLoop();
+  assert(loop_->IsInLoopThread());
+  Stop();
 }
 
 void Connector::Start() {
   loop_->RunInLoop(std::bind(&Connector::StartInLoop, this));
 }
 
+void Connector::Restart() {
+  assert(loop_->IsInLoopThread());
+
+  // 重新初始化状态参数.
+  connecting_ = false;
+  retryDelay_ = kInitRetryDelay;
+  stop_ = false;
+  StartInLoop();
+}
+
 void Connector::StartInLoop() {
   assert(loop_->IsInLoopThread());
   if (stop_) return;
-  // 创建新的套接字.
+
+  // 如果上一次调用 Start() 且正等待连接, socketChannel_ 就会是已注册状态.
+  if (socketChannel_ && socketChannel_->IsRegistered()) {
+    socketChannel_->DisableAll();
+    socketChannel_->RemoveFromPoller();  // 重要.
+  }
+  // 创建新的套接字. 同时会关闭旧的套接字.
   socket_.reset(new Socket());
   socketChannel_.reset(new Channel(loop_, socket_->Fd()));
 
@@ -79,6 +97,7 @@ void Connector::StopInLoop() {
     assert(socketChannel_->IsWriting());
     assert(socketChannel_->IsRegistered());
     UnregisterForConnecting();
+    connecting_ = false;
   }
   socketChannel_.reset();
 }
@@ -106,13 +125,7 @@ void Connector::HandleWrite() {
   UnregisterForConnecting();
   connecting_ = false;
 
-  int isError = 0;
-  socklen_t len = static_cast<socklen_t>(sizeof(isError));
-  ::getsockopt(socket_->Fd(),
-               SOL_SOCKET,
-               SO_ERROR,
-               static_cast<void*>(&isError),
-               &len);
+  int isError = socket_->ErrorCode();
   if (isError == 0) {  // 没有错误, 说明连接已建立.
     if (socket_->IsSelfConnect()) {
       LOG_WARN << "self connected.";
@@ -129,9 +142,13 @@ void Connector::HandleWrite() {
 }
 
 void Connector::Retry() {
+  // 调用此函数之前必须确保 socketChannel_ 未激活.
   LOG_INFO << "Connector::Retry(): retry after " << retryDelay_ << "s.";
+  // 如果重试时间到达时 Connector 已被销毁, 放弃.
   loop_->RunAfter(static_cast<double>(retryDelay_),
-                  std::bind(&Connector::StartInLoop, this));
+    wethands::MakeWeakCallback(shared_from_this(), &Connector::StartInLoop));
+  /*loop_->RunAfter(static_cast<double>(retryDelay_),
+                  std::bind(&Connector::StartInLoop, this));*/
   retryDelay_ *= 2;
   if (retryDelay_ > kMaxRetryDelay) {
     retryDelay_ = kMaxRetryDelay;

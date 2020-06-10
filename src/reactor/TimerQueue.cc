@@ -44,8 +44,14 @@ void ReadTimerfd(int timerfd) {
 void UpdateTimerfd(int timerfd, Timestamp expiration) {
   struct itimerspec newVal;
   ::memset(&newVal, 0, sizeof(newVal));
-  // 不需要设置 newVal.it_interval, 重复运行的功能由 TimerQueue 实现.
-  newVal.it_value = TimeDifference(expiration, Timestamp::Now());
+  Timestamp now = Timestamp::Now();
+  if (expiration > now) {
+    // 不需要设置 newVal.it_interval, 重复运行的功能由 TimerQueue 实现.
+    newVal.it_value = TimeDifference(expiration, Timestamp::Now());
+  } else {  // 已经过期了, 在 timerfd 中设置为1纳秒后过期.
+    newVal.it_value.tv_nsec = 1;
+  }
+
   // flag 默认为 0, 表明 it_value 使用相对时间.
   int ret = ::timerfd_settime(timerfd, 0, &newVal, nullptr);
   if (ret < 0) {

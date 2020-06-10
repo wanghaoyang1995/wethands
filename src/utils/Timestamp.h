@@ -7,6 +7,7 @@
 #define SRC_UTILS_TIMESTAMP_H_
 
 #include <time.h>
+#include <cassert>
 #include <cstdint>
 #include <cstring>
 #include <string>
@@ -70,6 +71,7 @@ inline double SecondsDifference(Timestamp high, Timestamp low) {
 
 // 返回两时间差的 timespec 结构.
 inline struct timespec TimeDifference(Timestamp high, Timestamp low) {
+  assert(high >= low);
   struct timespec ts;
   ::memset(&ts, 0, sizeof(ts));
   int64_t msDiff = high.MicrosecondsSinceEpoch() - low.MicrosecondsSinceEpoch();

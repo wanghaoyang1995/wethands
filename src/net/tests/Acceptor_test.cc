@@ -12,10 +12,14 @@ int main() {
   InetAddress listenAddr("localhost", 7766);
   Acceptor acceptor(&loop, listenAddr, true);
   acceptor.SetNewConnectionCallback([&loop](SocketPtr connSocket,
-                                            const InetAddress& addr) {
-    printf("new connection: fd = %d, %s\n", connSocket->Fd(), addr.ToString(true).c_str());
+                                            const InetAddress& clientAddr) {
+    InetAddress localAddr(connSocket->LocalAddress());
+    printf("fd: %d, clientAddr: %s, localAddr: %s\n",
+           connSocket->Fd(),
+           clientAddr.ToString(true).c_str(),
+           localAddr.ToString(true).c_str());
     //connSocket.reset();
-    loop.Quit();
+    //loop.Quit();
   });
   acceptor.Listen();
   loop.Loop();

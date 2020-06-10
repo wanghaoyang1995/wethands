@@ -27,10 +27,10 @@ class Buffer : public Copyable {
   // 取出 len 字节.
   void Retrieve(size_t len);
   const char* Peek() const { return buffer_.data() + readIndex_; }
-  void Prepend(const char* data, size_t len);
-  void Append(const char* data, size_t len);
-
-
+  void Prepend(const void* data, size_t len);
+  void Append(const void* data, size_t len);
+  // 从 fd 中读数据到缓冲区.
+  ssize_t ReadFd(int fd, int* errorCode);
 
  private:
   std::vector<char> buffer_;

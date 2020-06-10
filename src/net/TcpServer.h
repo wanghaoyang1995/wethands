@@ -20,7 +20,7 @@
 #include "src/utils/Uncopyable.h"
 
 namespace wethands {
-// TCP 服务器类.
+// TCP 被动端.
 // 维护着一个 TCP 连接列表, 和一个 I/O 线程池.
 class TcpServer : public Uncopyable {
  public:
@@ -69,7 +69,7 @@ class TcpServer : public Uncopyable {
   EventLoop* loop_;
   std::unique_ptr<Acceptor> acceptor_;
   std::string name_;
-  std::string ipPort_;
+  std::string ipPort_;  // 监听地址及端口的字符串表示.
   std::shared_ptr<EventLoopThreadPool> threadPool_;
   std::atomic<bool> started_;
   int connCount_;

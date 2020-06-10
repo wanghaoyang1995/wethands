@@ -6,6 +6,7 @@
 #ifndef SRC_NET_TCPCONNECTION_H_
 #define SRC_NET_TCPCONNECTION_H_
 
+#include <atomic>
 #include <string>
 #include <memory>
 #include "src/net/Buffer.h"
@@ -22,17 +23,18 @@ using TcpConnectionPtr = std::shared_ptr<TcpConnection>;
 
 // Tcp 连接的封装.
 // 从 Accept 和 Connector 那里接管已连接套接字的生命周期.
-class TcpConnection : public Uncopyable {
+class TcpConnection : public Uncopyable,
+                      public std::enable_shared_from_this<TcpConnection> {
  public:
   using ConnectionCallback = std::function<void (const TcpConnectionPtr&)>;
   using WriteCompleteCallback = std::function<void (const TcpConnectionPtr&)>;
   using MessageCallback =
-    std::function<void (const TcpConnectionPtr&, const Buffer&)>;
+    std::function<void (const TcpConnectionPtr&, Buffer*)>;
   using HighWaterMarkCallback =
     std::function<void (const TcpConnectionPtr&, size_t)>;
   using CloseCallback = std::function<void (const TcpConnectionPtr&)>;
 
-  TcpConnection(EventLoop* loop,  // 通常是 I/O 线程.
+  TcpConnection(EventLoop* loop,  // 通常是 I/O 子线程.
                 const std::string& name,
                 SocketPtr connSocket,
                 const InetAddress& localAddr,
@@ -46,15 +48,21 @@ class TcpConnection : public Uncopyable {
   Buffer* GetInputBuffer() { return &inputBuffer_; }
   Buffer* GetOutputBuffer() { return &outputBuffer_; }
 
-  bool Connected() const { return state_ == kConnected; }
+  bool IsConnected() const { return state_ == kConnected; }
+  bool IsReading() const { return reading_; }
   // 向套接字写入数据.
   void Send(const void* data, size_t len);
   void Send(const std::string& data, size_t len);
   void StartRead();
   void StopRead();
+  // 通知loop线程关闭写端. 将状态更改为 kDisconnecting.
   void Shutdown();
-  void SetTcpNoDelay();
+  // 通知loop线程销毁连接. 将状态更改为 kDisconnecting.
+  void ForceClose();
+  // 禁用 Nagle 算法.
+  void SetTcpNoDelay(bool on);
 
+  // ConnectionCallback 内一定要先判断连接状态, 否则有可能操作一个已关闭的连接.
   void SetConnectionCallback(const ConnectionCallback& cb) {
     connectionCallback_ = cb;
   }
@@ -64,6 +72,7 @@ class TcpConnection : public Uncopyable {
   void SetMessageCallback(const MessageCallback& cb) {
     messageCallback_ = cb;
   }
+  // 当输出缓冲区中的待发送数据不小于 highWaterMark_ 时, 触发该函数.
   void SetHighWaterMarkCallback(const HighWaterMarkCallback& cb) {
     highWaterMarkCallback_ = cb;
   }
@@ -76,7 +85,9 @@ class TcpConnection : public Uncopyable {
   void SetCloseCallback(const CloseCallback& cb) {
     closeCallback_ = cb;
   }
+  // 有新连接时, 由 TcpServer 调用. 不要直接调用.
   void ConnectionEstablished();
+  // 连接(主动或被动)关闭时, 由 TcpServer 调用. 不要直接调用.
   void ConnectionDestroyed();
 
  private:
@@ -85,6 +96,10 @@ class TcpConnection : public Uncopyable {
   void SendInLoop(const void* data, size_t len);
   // string 中有可能是二进制数据. 注意避免空字符截断.
   void SendInLoop(const std::string& data);
+  void StartReadInLoop();
+  void StopReadInLoop();
+  void ShutdownInLoop();
+  void ForceCloseInLoop();
 
   // socketChannel_ 相关的事件处理.
   void HandleRead();
@@ -94,7 +109,8 @@ class TcpConnection : public Uncopyable {
 
   EventLoop* loop_;
   std::string name_;
-  States state_;
+  std::atomic<States> state_;
+  std::atomic<bool> reading_;
   std::unique_ptr<Socket> socket_;  // TCP 本地端套接字.
   std::unique_ptr<Channel> socketChannel_;
   InetAddress localAddr_;

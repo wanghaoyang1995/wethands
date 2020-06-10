@@ -22,8 +22,8 @@ Socket::~Socket() {
   CloseFd(sockfd_);
 }
 
-ssize_t Socket::Send(const char* msg, size_t len) {
-  ssize_t writen = ::write(sockfd_, msg, len);
+ssize_t Socket::Send(const void* data, size_t len) {
+  ssize_t writen = ::write(sockfd_, data, len);
   if (writen < 0) {
     LOG_SYSERROR << "write() error.";
   }
@@ -158,6 +158,20 @@ void Socket::ShutdownWrite() {
   if (::shutdown(sockfd_, SHUT_WR) < 0) {
     LOG_SYSERROR << "ShutdownWrite() error.";
   }
+}
+
+int Socket::ErrorCode() const {
+  int errorCode = 0;
+  socklen_t len = static_cast<socklen_t>(sizeof(errorCode));
+  int ret = ::getsockopt(sockfd_,
+                         SOL_SOCKET,
+                         SO_ERROR,
+                         static_cast<void*>(&errorCode),
+                         &len);
+  if (ret < 0) {
+    LOG_SYSERROR << "getsockopt() error.";
+  }
+  return errorCode;
 }
 
 int Socket::CreateSocketFd() {

@@ -55,7 +55,9 @@ void TcpServer::NewConnection(SocketPtr connSocket,
   // Acceptor 的回调函数.
   assert(loop_->IsInLoopThread());
   EventLoop* ioLoop = threadPool_->NextLoop();  // 取出一个 I/O 子线程.
-  std::string connName = ipPort_ + "#" + std::to_string(++connCount_);
+  // 连接名: 对端地址#序号.
+  std::string connName = peerAddr.ToString(true) + "#" +
+                         std::to_string(++connCount_);
   InetAddress localAddr(connSocket->LocalAddress());
   TcpConnectionPtr conn(new TcpConnection(ioLoop,  // 新连接由子线程管理.
                                           connName,

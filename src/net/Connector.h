@@ -15,11 +15,11 @@
 #include "src/reactor/EventLoop.h"
 #include "src/utils/Uncopyable.h"
 
-
 namespace wethands {
 // 连接请求发起器.
 // 连接成功后会调用回调 NewConnectionCallback, 转移已连接套接字的管理权.
-class Connector : public Uncopyable {
+class Connector : public Uncopyable,
+                  public std::enable_shared_from_this<Connector> {
  public:
   using NewConnectionCallback =
     std::function<void (SocketPtr connSocket,
@@ -35,6 +35,9 @@ class Connector : public Uncopyable {
 
   // 尝试连接, 如果失败会按一定间隔重试, 直到连接成功或者调用 Cancel().
   void Start();
+  // 可以多次调用, 新调用会关闭旧的套接字(及其连接), 换用新的套接字.
+  // 会重新初始化内部的状态参数.
+  void Restart();
   // 取消连接.
   void Stop();
 
@@ -59,8 +62,11 @@ class Connector : public Uncopyable {
   std::atomic<bool> stop_;
   NewConnectionCallback newConnectionCallback_;
 
+  static constexpr int kInitRetryDelay = 1;  // 首次重启间隔时间.
   static constexpr int kMaxRetryDelay = 30;  // 最大重试间隔时间.
 };
+
+using ConnectorPtr = std::shared_ptr<Connector>;
 
 }  // namespace wethands
 

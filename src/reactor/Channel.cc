@@ -43,10 +43,12 @@ void Channel::HandleEvent() {
 void Channel::RegisterToPoller() {
   loop_->UpdateChannel(this);
   registeredToPoller = true;  // 已注册.
+  LOG_TRACE << "channel "<< fd_ << " registered.";
 }
 
 void Channel::RemoveFromPoller() {
   assert(events_ == kNoneEvent);
   loop_->RemoveChannel(this);
   registeredToPoller = false;  // 取消注册.
+  LOG_TRACE << "channel "<< fd_ << " unregistered.";
 }
