@@ -13,6 +13,7 @@
 #include "src/net/Socket.h"
 #include "src/reactor/Channel.h"
 #include "src/reactor/EventLoop.h"
+#include "src/reactor/Timer.h"
 #include "src/utils/Uncopyable.h"
 
 namespace wethands {
@@ -34,9 +35,11 @@ class Connector : public Uncopyable,
   InetAddress ServerAddress() const { return serverAddr_; }
 
   // 尝试连接, 如果失败会按一定间隔重试, 直到连接成功或者调用 Cancel().
+  // 只能调用一次, 如果需要重启请使用 Restart().
   void Start();
   // 可以多次调用, 新调用会关闭旧的套接字(及其连接), 换用新的套接字.
   // 会重新初始化内部的状态参数.
+  // 只能在 loop 线程中执行.
   void Restart();
   // 取消连接.
   void Stop();
@@ -56,10 +59,11 @@ class Connector : public Uncopyable,
   EventLoop* loop_;
   SocketPtr socket_;  // 主动连接套接字.
   std::unique_ptr<Channel> socketChannel_;  // 与主动连接套接字关联.
-  InetAddress serverAddr_;
+  const InetAddress serverAddr_;
   bool connecting_;
   int retryDelay_;  // 首次重试间隔时间(秒).
   std::atomic<bool> stop_;
+  TimerIndex timerIdx_;  // 用于取消重试的计时器索引.
   NewConnectionCallback newConnectionCallback_;
 
   static constexpr int kInitRetryDelay = 1;  // 首次重启间隔时间.

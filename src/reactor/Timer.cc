@@ -9,9 +9,9 @@ using wethands::Timer;
 
 wethands::AtomicInt64 Timer::count_(0);
 
-void Timer::Restart() {
+void Timer::Restart(Timestamp now) {
   if (IsRepeated()) {
-    expiration_ = wethands::AddSeconds(expiration_, interval_);
+    expiration_ = wethands::AddSeconds(now, interval_);
   } else {
     expiration_ = Timestamp::Invalid();
   }

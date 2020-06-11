@@ -1,5 +1,5 @@
-#add_executable(Timer_test Timer_test.cc)
-#target_link_libraries(Timer_test wethands)
+add_executable(Timer_test Timer_test.cc)
+target_link_libraries(Timer_test wethands)
 
 add_executable(EventLoop_test EventLoop_test.cc)
 target_link_libraries(EventLoop_test wethands)

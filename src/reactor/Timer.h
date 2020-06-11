@@ -37,7 +37,7 @@ class Timer : public Uncopyable {
   bool IsRepeated() const { return repeated_; }
   int64_t Sequence() const { return sequence_; }
   // 如果设置了间隔重启, Restart() 会就更新它的 expiration_.
-  void Restart();
+  void Restart(Timestamp now);
 
  private:
   const TimerCallback callback_;
@@ -61,11 +61,23 @@ class TimerIndex : public Copyable {
         sequence_(sequence) {}
 
   TimerIndex(const TimerIndex&) = default;
+  TimerIndex& operator=(const TimerIndex& rhs) {
+    timer_ = rhs.timer_;
+    expiration_ = rhs.expiration_;
+    sequence_ = rhs.sequence_;
+    return *this;
+  }
   // 默认析构足够了. 管理 Timer 的生命周期是 TimerQueue的责任.
   ~TimerIndex() = default;
 
   Timestamp Expiration() const { return expiration_; }
   int64_t Sequence() const { return sequence_; }
+  bool IsValid() const { return timer_ == nullptr; }
+  void SetInvalid() {
+    timer_ = nullptr;
+    expiration_ = Timestamp::Invalid();
+    sequence_ = 0;
+  }
 
   // 为了在有序容器中使用.
   // 首先比较到期时间, 先到期者小.
@@ -86,8 +98,8 @@ class TimerIndex : public Copyable {
 
  private:
   Timer* timer_;
-  const Timestamp expiration_;
-  const int64_t sequence_;
+  Timestamp expiration_;
+  int64_t sequence_;
 };
 
 static_assert(

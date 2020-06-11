@@ -20,6 +20,7 @@ Connector::Connector(EventLoop* loop, const InetAddress& serverAddr)
       connecting_(false),
       retryDelay_(kInitRetryDelay),
       stop_(false),
+      timerIdx_(),
       newConnectionCallback_() {}
 
 Connector::~Connector() {
@@ -33,11 +34,17 @@ void Connector::Start() {
 
 void Connector::Restart() {
   assert(loop_->IsInLoopThread());
-
   // 重新初始化状态参数.
-  connecting_ = false;
+  if (connecting_) {
+    assert(socketChannel_);
+    assert(socketChannel_->IsWriting());
+    assert(socketChannel_->IsRegistered());
+    UnregisterForConnecting();
+    connecting_ = false;
+  }
   retryDelay_ = kInitRetryDelay;
   stop_ = false;
+  loop_->CancelTimer(timerIdx_);  // 重要. 取消之前的重试计时器.
   StartInLoop();
 }
 
@@ -45,13 +52,9 @@ void Connector::StartInLoop() {
   assert(loop_->IsInLoopThread());
   if (stop_) return;
 
-  // 如果上一次调用 Start() 且正等待连接, socketChannel_ 就会是已注册状态.
-  if (socketChannel_ && socketChannel_->IsRegistered()) {
-    socketChannel_->DisableAll();
-    socketChannel_->RemoveFromPoller();  // 重要.
-  }
   // 创建新的套接字. 同时会关闭旧的套接字.
   socket_.reset(new Socket());
+  assert(!socketChannel_ || !socketChannel_->IsRegistered());
   socketChannel_.reset(new Channel(loop_, socket_->Fd()));
 
   int ret = socket_->Connect(serverAddr_);
@@ -99,6 +102,7 @@ void Connector::StopInLoop() {
     UnregisterForConnecting();
     connecting_ = false;
   }
+  loop_->CancelTimer(timerIdx_);
   socketChannel_.reset();
 }
 
@@ -121,7 +125,6 @@ void Connector::UnregisterForConnecting() {
 void Connector::HandleWrite() {
   // 套接字可写, 连接完成或者出错.
   // https://www.man7.org/linux/man-pages/man2/connect.2.html
-  if (stop_) return;
   UnregisterForConnecting();
   connecting_ = false;
 
@@ -142,10 +145,12 @@ void Connector::HandleWrite() {
 }
 
 void Connector::Retry() {
+  if (stop_) return;
   // 调用此函数之前必须确保 socketChannel_ 未激活.
   LOG_INFO << "Connector::Retry(): retry after " << retryDelay_ << "s.";
+
   // 如果重试时间到达时 Connector 已被销毁, 放弃.
-  loop_->RunAfter(static_cast<double>(retryDelay_),
+  timerIdx_ = loop_->RunAfter(static_cast<double>(retryDelay_),
     wethands::MakeWeakCallback(shared_from_this(), &Connector::StartInLoop));
   /*loop_->RunAfter(static_cast<double>(retryDelay_),
                   std::bind(&Connector::StartInLoop, this));*/

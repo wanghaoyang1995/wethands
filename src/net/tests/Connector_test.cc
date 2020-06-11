@@ -20,9 +20,8 @@ int main() {
     //loop.Quit();
   });
   connector->Start();
-  //loop.RunAfter(1.0, std::bind(&Connector::Stop, connector));
-  loop.RunAfter(2.0, std::bind(&Connector::Restart, connector));  // 第二次调用.
-
+  loop.RunAfter(3.0, std::bind(&Connector::Restart, connector));
+  loop.RunAfter(13.0, std::bind(&Connector::Restart, connector));
   loop.Loop();
   return 0;
 }

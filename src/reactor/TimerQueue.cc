@@ -45,11 +45,12 @@ void UpdateTimerfd(int timerfd, Timestamp expiration) {
   struct itimerspec newVal;
   ::memset(&newVal, 0, sizeof(newVal));
   Timestamp now = Timestamp::Now();
-  if (expiration > now) {
+  if (now < expiration) {
     // 不需要设置 newVal.it_interval, 重复运行的功能由 TimerQueue 实现.
     newVal.it_value = TimeDifference(expiration, Timestamp::Now());
-  } else {  // 已经过期了, 在 timerfd 中设置为1纳秒后过期.
-    newVal.it_value.tv_nsec = 1;
+  } else {  // 已经过期了, 在 timerfd 中设置为1微秒后过期.
+    LOG_WARN << "added timer has expirated.";
+    newVal.it_value.tv_nsec = 1000;
   }
 
   // flag 默认为 0, 表明 it_value 使用相对时间.
@@ -106,7 +107,7 @@ void TimerQueue::AddTimerInLoop(Timer* timer) {
     // 更新  timerfd 到期时间.
     details::UpdateTimerfd(timerfd_, toAdd.Expiration());
   }
-  // 将其入 timers_ 中.
+  // 将其加入 timers_ 中.
   std::pair<std::set<TimerIndex>::iterator, bool> ret
     = timers_.insert(toAdd);
   assert(ret.second == true);
@@ -133,7 +134,7 @@ void TimerQueue::HandleRead() {
     timerIndex.timer_->Run();
 
     if (timerIndex.timer_->IsRepeated()) {
-      timerIndex.timer_->Restart();
+      timerIndex.timer_->Restart(now);
       AddTimerInLoop(timerIndex.timer_);
     } else {
       delete timerIndex.timer_;  // 删除已过期且不需要重启的定时器.
