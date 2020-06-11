@@ -34,7 +34,8 @@ const char* logLevelName[Logger::LogLevel::NUM_OF_LOGLEVEL] = {
   "INFO",
   "WARN",
   "ERROR",
-  "FATAL"
+  "FATAL",
+  "NONE"
 };
 
 }  // namespace wethands

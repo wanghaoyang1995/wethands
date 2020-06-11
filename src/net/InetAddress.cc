@@ -32,6 +32,13 @@ InetAddress::InetAddress(const char* ip, uint16_t port) {
   }
 }
 
+InetAddress::InetAddress(uint16_t port) {
+  ::memset(&addr_, 0, sizeof(addr_));
+  addr_.sin_family = AF_INET;
+  addr_.sin_port = ::htobe16(port);
+  addr_.sin_addr.s_addr = INADDR_ANY;
+}
+
 std::string InetAddress::ToString(bool printPort) const {
   char buf[32];
   ::inet_ntop(AF_INET, &addr_.sin_addr, buf, sizeof(buf));

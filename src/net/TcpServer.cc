@@ -6,6 +6,24 @@
 #include "src/net/TcpServer.h"
 #include <cassert>
 #include <utility>
+#include "src/logger/Logger.h"
+
+namespace wethands {
+namespace details {
+
+void DefaultConnectionCallback(const TcpConnectionPtr& conn) {
+  LOG_TRACE << "DefaultConnectionCallback().";
+}
+
+void DefaultMessageCallback(const TcpConnectionPtr& conn,
+                            Buffer* buffer,
+                            Timestamp when) {
+  buffer->RetrieveAll();
+  LOG_TRACE << "DefaultMessageCallback().";
+}
+
+}  // namespace details
+}  // namespace wethands
 
 using wethands::TcpServer;
 using std::placeholders::_1;
@@ -23,9 +41,9 @@ TcpServer::TcpServer(EventLoop* loop,
       started_(false),
       connCount_(0),
       threadInitCallback_(),
-      connectionCallback_(),
+      connectionCallback_(details::DefaultConnectionCallback),
       writeCompleteCallback_(),
-      messageCallback_(),
+      messageCallback_(details::DefaultMessageCallback),
       connections_() {
   assert(loop_);
   acceptor_->SetNewConnectionCallback(

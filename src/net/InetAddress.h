@@ -15,11 +15,14 @@ namespace wethands {
 // 可拷贝的.
 class InetAddress : public Copyable {
  public:
+  // 生成一个无效的地址对象.
   InetAddress();
-  // 输入参数 port 是主机序.
+  // 用指定的 ip, port, 生成地址. 输入参数 port 是主机序.
   InetAddress(const char* ip, uint16_t port);
   InetAddress(const std::string& ip, uint16_t port)
       : InetAddress(ip.c_str(), port) {}
+  // 该函数不指定 ip, 生成的地址用于监听服务器, 监听地址为 0.0.0.0.
+  InetAddress(uint16_t port);
   InetAddress(const struct sockaddr_in& addr) : addr_(addr) {}
 
   ~InetAddress() = default;

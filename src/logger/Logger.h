@@ -25,6 +25,7 @@ class Logger {
     WARN,            // 用于可能存在潜在错误的事件记录.
     ERROR,           // 出错但不影响程序运行的事件记录.
     FATAL,           // 出错影响程序继续进行, 记录并终止进程.
+    NONE,            // 关闭所有日志输出(除了 FATAL).
     NUM_OF_LOGLEVEL
   };
 
@@ -66,17 +67,20 @@ class Logger {
     wethands::Logger(__FILE__, __LINE__, wethands::Logger::INFO).Stream()
 
 #define LOG_WARN \
-  wethands::Logger(__FILE__, __LINE__, wethands::Logger::WARN).Stream()
+  if (wethands::Logger::GetLogLevel() != wethands::Logger::NONE) \
+    wethands::Logger(__FILE__, __LINE__, wethands::Logger::WARN).Stream()
 
 #define LOG_ERROR \
-  wethands::Logger(__FILE__, __LINE__, wethands::Logger::ERROR).Stream()
+  if (wethands::Logger::GetLogLevel() != wethands::Logger::NONE) \
+    wethands::Logger(__FILE__, __LINE__, wethands::Logger::ERROR).Stream()
 
 #define LOG_FATAL \
   wethands::Logger(__FILE__, __LINE__, wethands::Logger::FATAL).Stream()
 
 // 系统调用错误. 输出错误码及描述.
 #define LOG_SYSERROR \
-  wethands::Logger(__FILE__, __LINE__, wethands::Logger::ERROR, errno).Stream()
+  if (wethands::Logger::GetLogLevel() != wethands::Logger::NONE) \
+    wethands::Logger(__FILE__, __LINE__, wethands::Logger::ERROR, errno).Stream()
 // 严重系统调用错误. 输出错误码及描述并终止进程.
 #define LOG_SYSFATAL \
   wethands::Logger(__FILE__, __LINE__, wethands::Logger::FATAL, errno).Stream()

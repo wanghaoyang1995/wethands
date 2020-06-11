@@ -7,6 +7,7 @@
 #define SRC_UTILS_WEAKCALLBACK_H_
 
 #include <memory>
+#include <functional>
 
 namespace wethands {
 // 弱回调函数, 与普通仿函类似.

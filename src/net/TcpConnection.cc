@@ -62,14 +62,18 @@ void TcpConnection::Send(const void* data, size_t len) {
   }
 }
 
+void TcpConnection::Send(const std::string& data) {
+  Send(data.data(), data.size());
+}
+
 void TcpConnection::StartRead() {
   loop_->RunInLoop(
-    std::bind(TcpConnection::StartReadInLoop, shared_from_this()));
+    std::bind(&TcpConnection::StartReadInLoop, shared_from_this()));
 }
 
 void TcpConnection::StopRead() {
   loop_->RunInLoop(
-    std::bind(TcpConnection::StopReadInLoop, shared_from_this()));
+    std::bind(&TcpConnection::StopReadInLoop, shared_from_this()));
 }
 
 void TcpConnection::Shutdown() {
@@ -96,7 +100,7 @@ void TcpConnection::ConnectionEstablished() {
   // 该函数是连接建立后的第一步.
   assert(loop_->IsInLoopThread());
   assert(state_ == kConnecting);
-  socketChannel_->EnableReading();
+  socketChannel_->EnableReading();  // 不用手动调用 StartRead.
   state_ = kConnected;
   connectionCallback_(shared_from_this());
 }
@@ -107,7 +111,7 @@ void TcpConnection::ConnectionDestroyed() {
   assert(state_ == kDisconnected);
   socketChannel_->DisableAll();
   socketChannel_->RemoveFromPoller();
-  // 用户应确保不能在回调中操作已断开的连接.
+  // 用户应确保不能在回调中操作已断开的连接, 只能获取状态信息.
   connectionCallback_(shared_from_this());
 }
 
@@ -204,7 +208,7 @@ void TcpConnection::HandleRead() {
   } else if (n == 0) {  // 遇到EOF, 关闭连接.
     HandleClose();  // 正常关闭.
   } else if (messageCallback_) {  // 正常读入.
-    messageCallback_(shared_from_this(), &inputBuffer_);
+    messageCallback_(shared_from_this(), &inputBuffer_, Timestamp::Now());
   }
 }
 
@@ -212,7 +216,6 @@ void TcpConnection::HandleWrite() {
   // 当 Send 函数不能一次性写完时, 会将剩余内容放入输出缓冲区并注册可写事件关注.
   // 套接字可写时被调用, 该函数将输出缓冲区剩余内容写入套接字.
   assert(loop_->IsInLoopThread());
-  assert(state_ == kConnected);
   // 连接有可能已经关闭, 放弃.
   if (!socketChannel_->IsWriting()) {
     LOG_WARN << "HandleWrite(): connection closed, abort to write.";

@@ -1,8 +1,11 @@
 set(net_SRCS
   Acceptor.cc
+  Buffer.cc
   Connector.cc
   InetAddress.cc
   Socket.cc
+  TcpConnection.cc
+  TcpClient.cc
   TcpServer.cc
 )
 

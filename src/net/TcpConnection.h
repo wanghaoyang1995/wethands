@@ -29,7 +29,7 @@ class TcpConnection : public Uncopyable,
   using ConnectionCallback = std::function<void (const TcpConnectionPtr&)>;
   using WriteCompleteCallback = std::function<void (const TcpConnectionPtr&)>;
   using MessageCallback =
-    std::function<void (const TcpConnectionPtr&, Buffer*)>;
+    std::function<void (const TcpConnectionPtr&, Buffer*, Timestamp)>;
   using HighWaterMarkCallback =
     std::function<void (const TcpConnectionPtr&, size_t)>;
   using CloseCallback = std::function<void (const TcpConnectionPtr&)>;
@@ -52,7 +52,7 @@ class TcpConnection : public Uncopyable,
   bool IsReading() const { return reading_; }
   // 向套接字写入数据.
   void Send(const void* data, size_t len);
-  void Send(const std::string& data, size_t len);
+  void Send(const std::string& data);
   void StartRead();
   void StopRead();
   // 通知loop线程关闭写端. 将状态更改为 kDisconnecting.

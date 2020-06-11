@@ -12,3 +12,6 @@ target_link_libraries(BlockingQueue_test wethands)
 
 add_executable(FileUtil_test FileUtil_test.cc)
 target_link_libraries(FileUtil_test wethands)
+
+add_executable(WeakCallback_test WeakCallback_test.cc)
+target_link_libraries(WeakCallback_test wethands)
