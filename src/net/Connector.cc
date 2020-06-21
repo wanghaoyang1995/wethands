@@ -119,7 +119,7 @@ void Connector::UnregisterForConnecting() {
   assert(socketChannel_);
   assert(socketChannel_->IsRegistered());
   socketChannel_->DisableWriting();
-  socketChannel_->RemoveFromPoller();
+  socketChannel_->RemoveFromPoller();  // TODO: 效率优化.
 }
 
 void Connector::HandleWrite() {

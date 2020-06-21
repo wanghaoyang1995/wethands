@@ -15,3 +15,6 @@ target_link_libraries(FileUtil_test wethands)
 
 add_executable(WeakCallback_test WeakCallback_test.cc)
 target_link_libraries(WeakCallback_test wethands)
+
+add_executable(Singleton_test Singleton_test.cc)
+target_link_libraries(Singleton_test wethands)

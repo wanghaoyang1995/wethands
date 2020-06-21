@@ -4,6 +4,7 @@
 // Description:
 
 #ifndef SRC_THREAD_CURRENTTHREAD_H_
+#define SRC_THREAD_CURRENTTHREAD_H_
 
 #include <cstdint>
 
@@ -32,5 +33,4 @@ void SleepUsec(int64_t usec);
 }  // namespace CurrentThread
 }  // namespace wethands
 
-#define SRC_THREAD_CURRENTTHREAD_H_
 #endif  // SRC_THREAD_CURRENTTHREAD_H_
