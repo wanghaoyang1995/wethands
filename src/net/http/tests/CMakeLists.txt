@@ -1,0 +1,3 @@
+add_executable(HttpRequest_test HttpRequest_test.cc)
+target_link_libraries(HttpRequest_test wethands gtest_main)
+add_test(NAME HttpRequest_test COMMAND HttpRequest_test)

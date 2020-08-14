@@ -34,5 +34,12 @@ int main() {
 
   Timestamp t4 = t3.RoundByDay();
   printf("t4: %s\n", t4.ToFormattedString(true).c_str());
+
+  Timestamp t5 = Timestamp(100);
+  Timestamp t6 = Timestamp(200);
+  t5.Swap(t6);
+  assert(t5 == Timestamp(200));
+  assert(t6 == Timestamp(100));
+
   return 0;
 }

@@ -46,6 +46,10 @@ class Timestamp : public Copyable,
   static Timestamp Now();
   static Timestamp Invalid() { return Timestamp(); }
 
+  void Swap(Timestamp& that) {
+    std::swap(microsecondsSinceEpoch_, that.microsecondsSinceEpoch_);
+  }
+
   static constexpr int kMicrosecondsPerSecond = 1000000;
   static constexpr int kNanosecondsPerMicrosecond = 1000;
 
