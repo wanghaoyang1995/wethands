@@ -22,13 +22,13 @@ bool HttpContext::ParseRequest(Buffer* buf, Timestamp receiveTime) {
           buf->RetrieveUntil(crlf + 2);
           state_ = kExpectHeaders;
         } else {  // 解析失败.
-          LOG_ERROR << "ParseRequest() error.";
+          LOG_ERROR << "ParseRequest(): Request line parsing error.";
           hasMore = false;
           ok = false;
         }
       } else if (state_ == kExpectHeaders) {
         // 处理首部行.
-        std::regex reg("(\\w+):\\s*([\\wa\\.\\-%]+)");
+        std::regex reg("([^:]+):\\s*(.+)");
         const char* crlf = buf->FindCRLF();
         if (crlf) {
           std::cmatch m;
@@ -36,9 +36,15 @@ bool HttpContext::ParseRequest(Buffer* buf, Timestamp receiveTime) {
           if (match) {
             request_.AddHeader(m[1].str(), m[2].str());
             buf->RetrieveUntil(crlf + 2);
-          } else {  // 首部行结束.
-            buf->RetrieveUntil(crlf + 2);
-            state_ = kExpectBody;
+          } else {  // 匹配失败, 首部行结束或格式错误.
+            if (buf->Peek() == crlf) {  // 首部行结束.
+              buf->RetrieveUntil(crlf + 2);
+              state_ = kExpectBody;
+            } else {  // 首部行格式错误.
+              LOG_ERROR << "ParseRequest(): Header line parsing error.";
+              ok = false;
+              hasMore = false;
+            }
           }
         } else {
             hasMore = false;

@@ -66,6 +66,10 @@ void TcpConnection::Send(const std::string& data) {
   Send(data.data(), data.size());
 }
 
+void TcpConnection::Send(Buffer* buf) {
+  Send(buf->RetrieveAllAsString());
+}
+
 void TcpConnection::StartRead() {
   loop_->RunInLoop(
     std::bind(&TcpConnection::StartReadInLoop, shared_from_this()));

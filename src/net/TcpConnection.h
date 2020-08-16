@@ -55,6 +55,7 @@ class TcpConnection : public Uncopyable,
   // 向套接字写入数据.
   void Send(const void* data, size_t len);
   void Send(const std::string& data);
+  void Send(Buffer* buf);
   void StartRead();
   void StopRead();
   // 通知loop线程关闭写端. 将状态更改为 kDisconnecting.

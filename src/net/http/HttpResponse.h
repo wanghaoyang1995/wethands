@@ -32,6 +32,7 @@ class HttpResponse : public Copyable {
     statusMessage_ = message;
   }
   void SetCloseConnection(bool on) { closeConnection_ = on; }
+  bool CloseConnection() const { return closeConnection_; }
   void AddHeader(const std::string& key, const std::string& value) {
     headers_[key] = value;
   }

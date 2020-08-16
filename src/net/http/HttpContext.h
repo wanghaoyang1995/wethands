@@ -11,7 +11,7 @@
 #include "src/net/http/HttpRequest.h"
 
 namespace wethands {
-
+// HTTP 上下文信息. 保存了 HTTP 请求及状态.
 class HttpContext : public Copyable {
  public:
   enum HttpRequestParseState {

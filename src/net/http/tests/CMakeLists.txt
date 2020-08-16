@@ -9,3 +9,6 @@ add_test(NAME HttpContext_test COMMAND HttpContext_test)
 add_executable(HttpResponse_test HttpResponse_test.cc)
 target_link_libraries(HttpResponse_test wethands gtest_main)
 add_test(NAME HttpResponse_test COMMAND HttpResponse_test)
+
+add_executable(HttpServer_test HttpServer_test.cc)
+target_link_libraries(HttpServer_test wethands)
