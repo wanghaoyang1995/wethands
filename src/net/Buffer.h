@@ -52,6 +52,7 @@ class Buffer : public Copyable {
   void Prepend(const void* data, size_t len);
   // 追加 len 字节.
   void Append(const void* data, size_t len);
+  void Append(const std::string& data);
   // 从 fd 中读数据到缓冲区.
   ssize_t ReadFd(int fd, int* errorCode);
   const char* FindCRLF() const;

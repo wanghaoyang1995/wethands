@@ -113,6 +113,9 @@ class HttpRequest : public Copyable {
     }
     headers_[field] = value;
   }
+  void AddHeader(const std::string& key, const std::string& value) {
+    headers_[key] = value;
+  }
   std::string GetHeader(const std::string& field) const {
     std::map<std::string, std::string>::const_iterator it =
       headers_.find(field);

@@ -48,5 +48,5 @@ TEST_F(HttpRequestTest, SwapTest) {
   ASSERT_STREQ(request1.VersionString(), "UNKNOWN");
 }
 
-}
+}  // namespace
 }  // namespace wethands

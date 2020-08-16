@@ -83,6 +83,10 @@ void Buffer::Append(const void* data, size_t len) {
   writeIndex_ += len;
 }
 
+void Buffer::Append(const std::string& data) {
+  Append(data.c_str(), data.size());
+}
+
 ssize_t Buffer::ReadFd(int fd, int* errorCode) {
   // 预先开辟 64KiB 的栈缓冲区作备用.
   // 目的是为了减少系统调用的次数, 和及时扩展缓冲区大小.
