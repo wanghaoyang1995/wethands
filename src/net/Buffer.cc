@@ -5,12 +5,15 @@
 
 #include "src/net/Buffer.h"
 #include <sys/uio.h>
+#include <algorithm>
 #include <cassert>
 #include <cstring>
 #include <utility>
 #include "src/logger/Logger.h"
 
 using wethands::Buffer;
+
+const char Buffer::kCRLF[] = "\r\n";
 
 Buffer::Buffer(size_t initialSize)
     : buffer_(kInitPrependSize + initialSize),
@@ -34,6 +37,12 @@ void Buffer::Retrieve(size_t len) {
   } else {
     RetrieveAll();
   }
+}
+
+void Buffer::RetrieveUntil(const char* end) {
+  assert(end >= Peek());
+  assert(end <= BeginWrite());
+  Retrieve(end - Peek());
 }
 
 void Buffer::RetrieveAll() {
@@ -96,6 +105,11 @@ ssize_t Buffer::ReadFd(int fd, int* errorCode) {
     Append(extrabuf, n - writable);
   }
   return n;
+}
+
+const char* Buffer::FindCRLF() const {
+  const char* crlf = std::search(Peek(), BeginWrite(), kCRLF, kCRLF + 2);
+  return crlf == BeginWrite() ? nullptr : crlf;
 }
 
 void Buffer::CheckAndMakePlace(size_t len) {

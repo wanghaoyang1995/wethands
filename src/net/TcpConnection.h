@@ -16,6 +16,8 @@
 #include "src/reactor/EventLoop.h"
 #include "src/utils/Uncopyable.h"
 
+#include <boost/any.hpp>
+
 namespace wethands {
 
 class TcpConnection;
@@ -61,6 +63,10 @@ class TcpConnection : public Uncopyable,
   void ForceClose();
   // 禁用 Nagle 算法.
   void SetTcpNoDelay(bool on);
+
+  void SetContext(const boost::any& context) { context_ = context; }
+  const boost::any& GetContext() const { return context_; }
+  boost::any* GetMutableContext() { return &context_; }
 
   // ConnectionCallback 内一定要先判断连接状态, 否则有可能操作一个已关闭的连接.
   void SetConnectionCallback(const ConnectionCallback& cb) {
@@ -118,6 +124,7 @@ class TcpConnection : public Uncopyable,
   Buffer inputBuffer_;
   Buffer outputBuffer_;
   size_t highWaterMark_;
+  boost::any context_;
 
   ConnectionCallback connectionCallback_;
   WriteCompleteCallback writeCompleteCallback_;

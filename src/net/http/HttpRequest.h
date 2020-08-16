@@ -40,8 +40,11 @@ class HttpRequest : public Copyable {
 
   HttpRequest() : method_(kInvalid), version_(kUnknown) {}
   bool SetVersion(const char* start, const char* end) {
-    assert(version_ == kUnknown);
     const std::string v(start, end);
+    return SetVersion(v);
+  }
+  bool SetVersion(const std::string& v) {
+    assert(version_ == kUnknown);
     for (int i = 1; i < NUM_Version; ++i) {
       if (v == VersionNames[i]) {
         version_ = static_cast<Version>(i);
@@ -52,8 +55,11 @@ class HttpRequest : public Copyable {
   }
 
   bool SetMethod(const char* start, const char* end) {
-    assert(method_ == kInvalid);
     const std::string m(start, end);
+    return SetMethod(m);
+  }
+  bool SetMethod(const std::string& m) {
+    assert(method_ == kInvalid);
     for (int i = 1; i < NUM_Method; ++i) {
       if (m == MethodNames[i]) {
         method_ = static_cast<Method>(i);
@@ -65,8 +71,20 @@ class HttpRequest : public Copyable {
   void SetPath(const char* start, const char* end) {
     path_.assign(start, end);
   }
+  void SetPath(const std::string& p) {
+    path_ = p;
+  }
   void SetQuery(const char* start, const char* end) {
     query_.assign(start, end);
+  }
+  void SetQuery(const std::string& q) {
+    query_ = q;
+  }
+  void SetBody(const char* start, const char* end) {
+    body_.assign(start, end);
+  }
+  void SetBody(const std::string& b) {
+    body_ = b;
   }
   void SetReceiveTime(Timestamp t) { receiveTime_ = t; }
 
@@ -80,6 +98,7 @@ class HttpRequest : public Copyable {
   }
   const std::string& GetPath() const { return path_; }
   const std::string& GetQuery() const { return query_; }
+  const std::string& GetBody() const { return body_; }
   Timestamp GetReceiveTime() const { return receiveTime_; }
 
   // 输入的三个参数分别为字符串起始位置、冒号位置、终止位置.
@@ -109,6 +128,7 @@ class HttpRequest : public Copyable {
     std::swap(version_, that.version_);
     path_.swap(that.path_);
     query_.swap(that.query_);
+    body_.swap(that.body_);
     receiveTime_.Swap(that.receiveTime_);
     headers_.swap(that.headers_);
   }
@@ -118,6 +138,7 @@ class HttpRequest : public Copyable {
   Version version_;  // http 版本
   std::string path_;  // 请求资源路径
   std::string query_;  // 查询字符串
+  std::string body_;  // 请求体
   Timestamp receiveTime_;
   std::map<std::string, std::string> headers_;  // 首部行
 };

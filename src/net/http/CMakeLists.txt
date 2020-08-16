@@ -1,4 +1,5 @@
 set(http_SRCS
+  HttpContext.cc
   HttpRequest.cc
 )
 
